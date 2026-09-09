@@ -246,11 +246,11 @@ function DashboardPage() {
   );
 
   const kpis = [
-    { label: "Cabin Diperbaiki Hari Ini", value: completedToday.length, icon: CheckCircle2, tone: "text-emerald-600 bg-emerald-50" },
+    { label: "Cabins Repaired Today", value: completedToday.length, icon: CheckCircle2, tone: "text-emerald-600 bg-emerald-50" },
     { label: "Sedang Dikerjakan", value: inProgress.length, icon: Loader, tone: "text-blue-600 bg-blue-50" },
     { label: "Rata-rata Durasi / Cabin", value: fmtDuration(Math.round(avgToday)), icon: Timer, tone: "text-violet-600 bg-violet-50" },
-    { label: "Manpower Aktif Hari Ini", value: activeManpower, icon: Users, tone: "text-cyan-600 bg-cyan-50" },
-    { label: "Sesi Menggantung", value: hanging.length, icon: AlertTriangle, tone: "text-amber-600 bg-amber-50" },
+    { label: "Active Manpower Today", value: activeManpower, icon: Users, tone: "text-cyan-600 bg-cyan-50" },
+    { label: "Pending Sessions", value: hanging.length, icon: AlertTriangle, tone: "text-amber-600 bg-amber-50" },
   ];
 
   const filteredManpowerSummary = manpowerSummary.filter(r => {
@@ -272,7 +272,7 @@ function DashboardPage() {
     <div className="p-4 md:p-6 lg:p-8 bg-slate-50/50 min-h-screen">
       <PageHeader
         title="Dashboard"
-        description="Monitoring real-time pengerjaan perbaikan cabin berdasarkan data scan RFID/barcode."
+        description="Real-time monitoring of cabin repair work based on RFID/barcode scan data."
         actions={
           <Select value={range} onValueChange={setRange}>
             <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
@@ -321,7 +321,7 @@ function DashboardPage() {
                 <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
                 <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }} />
-                <Area type="monotone" dataKey="selesai" name="Cabin selesai" stroke="var(--primary)" fill="url(#gradSelesai)" strokeWidth={2} />
+                <Area type="monotone" dataKey="selesai" name="Completed cabins" stroke="var(--primary)" fill="url(#gradSelesai)" strokeWidth={2} />
                 <Area type="monotone" dataKey="rataRata" name="Rata-rata bergerak" stroke="var(--chart-2)" strokeDasharray="5 4" fill="none" strokeWidth={1.5} />
               </AreaChart>
             </ResponsiveContainer>

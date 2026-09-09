@@ -28,9 +28,9 @@ export const Route = createFileRoute("/master/cabin")({
   head: () => ({
     meta: [
       { title: "Master Cabin — CabinTrack" },
-      { name: "description", content: "Data master cabin tersinkron dari sistem produksi (read-only)." },
+      { name: "description", content: "Master cabin data synced from production system (read-only)." },
       { property: "og:title", content: "Master Cabin — CabinTrack" },
-      { property: "og:description", content: "Data master cabin tersinkron dari sistem produksi (read-only)." },
+      { property: "og:description", content: "Master cabin data synced from production system (read-only)." },
     ],
   }),
   component: MasterCabinPage,
@@ -110,7 +110,7 @@ function MasterCabinPage() {
     setSyncing(true);
     setTimeout(() => {
       setSyncing(false);
-      toast.success("Sync selesai — 24 record cabin diperbarui dari sistem sumber.");
+      toast.success("Sync completed — 24 cabin records updated from source system.");
     }, 1500);
   };
 

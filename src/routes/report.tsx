@@ -34,9 +34,9 @@ export const Route = createFileRoute("/report")({
   head: () => ({
     meta: [
       { title: "Report — CabinTrack" },
-      { name: "description", content: "Buat dan ekspor laporan perbaikan cabin: harian, produktivitas manpower, durasi per model, dan sesi menggantung." },
+      { name: "description", content: "Create and export cabin repair reports: daily, manpower productivity, duration per model, and pending sessions." },
       { property: "og:title", content: "Report — CabinTrack" },
-      { property: "og:description", content: "Buat dan ekspor laporan perbaikan cabin dalam format PDF/Excel." },
+      { property: "og:description", content: "Create and export cabin repair reports in PDF/Excel format." },
     ],
   }),
   component: ReportPage,
@@ -179,9 +179,9 @@ function ReportPage() {
 
   const tabs: { value: ReportType; label: string }[] = [
     { value: "harian", label: "Daily Report" },
-    { value: "manpower", label: "Produktivitas Manpower" },
-    { value: "cabin", label: "Durasi per Cabin/Model" },
-    { value: "hanging", label: "Sesi Menggantung" },
+    { value: "manpower", label: "Manpower Productivity" },
+    { value: "cabin", label: "Duration per Cabin/Model" },
+    { value: "hanging", label: "Pending Sessions" },
   ];
 
   return (
@@ -217,9 +217,9 @@ function ReportPage() {
           <Select value={range} onValueChange={setRange}>
             <SelectTrigger className="w-[150px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">Hari Ini</SelectItem>
-              <SelectItem value="7">7 Hari Terakhir</SelectItem>
-              <SelectItem value="30">30 Hari Terakhir</SelectItem>
+              <SelectItem value="1">Today</SelectItem>
+              <SelectItem value="7">Last 7 Days</SelectItem>
+              <SelectItem value="30">Last 30 Days</SelectItem>
             </SelectContent>
           </Select>
           <Select value={fManpower} onValueChange={setFManpower}>

@@ -22,9 +22,9 @@ export const Route = createFileRoute("/master/manpower")({
   head: () => ({
     meta: [
       { title: "Master Manpower — CabinTrack" },
-      { name: "description", content: "Roster manpower tersinkron dari sistem HR (read-only)." },
+      { name: "description", content: "Manpower roster synced from HR system (read-only)." },
       { property: "og:title", content: "Master Manpower — CabinTrack" },
-      { property: "og:description", content: "Roster manpower tersinkron dari sistem HR (read-only)." },
+      { property: "og:description", content: "Manpower roster synced from HR system (read-only)." },
     ],
   }),
   component: MasterManpowerPage,
