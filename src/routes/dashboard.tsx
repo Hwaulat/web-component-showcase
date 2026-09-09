@@ -1,0 +1,467 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import {
+  CheckCircle2,
+  Loader,
+  Timer,
+  Users,
+  AlertTriangle,
+  Ban,
+} from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { toast } from "sonner";
+
+import { PageHeader } from "@/components/page-header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Table, TBody, THead, Th, Td, Tr } from "@/components/custom/data-table";
+import {
+  CABIN_MODELS,
+  LINE_STATIONS,
+  STATUS_LABEL,
+  cabinById,
+  cabins,
+  fmtDate,
+  fmtDateTime,
+  fmtDuration,
+  isSameDay,
+  manpower,
+  manpowerById,
+  NOW_REF,
+  workSessions,
+  type SessionStatus,
+} from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
+
+export const Route = createFileRoute("/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — CabinTrack" },
+      { name: "description", content: "Pantau cabin diperbaiki, sesi aktif, durasi rata-rata, dan produktivitas manpower secara real-time." },
+      { property: "og:title", content: "Dashboard — CabinTrack" },
+      { property: "og:description", content: "Pantau cabin diperbaiki, sesi aktif, durasi rata-rata, dan produktivitas manpower secara real-time." },
+    ],
+  }),
+  component: DashboardPage,
+});
+
+const STATUS_BADGE: Record<SessionStatus, string> = {
+  completed: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  in_progress: "bg-blue-100 text-blue-700 border-blue-200",
+  force_closed: "bg-amber-100 text-amber-700 border-amber-200",
+};
+
+function InlineBar({ value, max }: { value: number; max: number }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full bg-primary"
+          style={{ width: `${max > 0 ? Math.round((value / max) * 100) : 0}%` }}
+        />
+      </div>
+      <span className="text-sm font-medium">{value}</span>
+    </div>
+  );
+}
+
+function DashboardPage() {
+  const [range, setRange] = useState("7");
+  const [fManpower, setFManpower] = useState("all");
+  const [fModel, setFModel] = useState("all");
+  const [fLine, setFLine] = useState("all");
+  const [closedIds, setClosedIds] = useState<string[]>([]);
+  const [forceCloseTarget, setForceCloseTarget] = useState<string | null>(null);
+  const [forceReason, setForceReason] = useState("");
+
+  const filtered = useMemo(
+    () =>
+      workSessions.filter((s) => {
+        const cabin = cabinById(s.cabinId);
+        if (!cabin) return false;
+        if (fManpower !== "all" && s.manpowerId !== fManpower) return false;
+        if (fModel !== "all" && cabin.model !== fModel) return false;
+        if (fLine !== "all" && cabin.lineStation !== fLine) return false;
+        return true;
+      }),
+    [fManpower, fModel, fLine],
+  );
+
+  const todaySessions = filtered.filter((s) => isSameDay(s.startTime, NOW_REF));
+  const completedToday = todaySessions.filter((s) => s.status === "completed");
+  const inProgress = filtered.filter(
+    (s) => s.status === "in_progress" && !closedIds.includes(s.id),
+  );
+  const hanging = inProgress.filter(
+    (s) => NOW_REF.getTime() - s.startTime.getTime() > 8 * 3600_000,
+  );
+  const avgToday =
+    completedToday.length > 0
+      ? completedToday.reduce((a, s) => a + (s.durationSeconds ?? 0), 0) /
+        completedToday.length
+      : 0;
+  const activeManpower = new Set(todaySessions.map((s) => s.manpowerId)).size;
+
+  // Data tren N hari
+  const trend = useMemo(() => {
+    const days = Number(range);
+    const out: Array<{ date: string; selesai: number; rataRata: number | null }> = [];
+    const windowVals: number[] = [];
+    for (let d = days - 1; d >= 0; d--) {
+      const day = new Date(NOW_REF.getTime() - d * 86400_000);
+      const count = filtered.filter(
+        (s) => s.status === "completed" && s.endTime && isSameDay(s.endTime, day),
+      ).length;
+      windowVals.push(count);
+      const w = windowVals.slice(-7);
+      out.push({
+        date: fmtDate(day),
+        selesai: count,
+        rataRata: Math.round((w.reduce((a, b) => a + b, 0) / w.length) * 10) / 10,
+      });
+    }
+    return out;
+  }, [filtered, range]);
+
+  // Summary per manpower
+  const manpowerSummary = useMemo(() => {
+    const done = filtered.filter((s) => s.status === "completed");
+    return manpower
+      .map((m) => {
+        const mine = done.filter((s) => s.manpowerId === m.id);
+        const total = mine.reduce((a, s) => a + (s.durationSeconds ?? 0), 0);
+        return {
+          id: m.id,
+          name: m.name,
+          nik: m.nik,
+          cabinCount: new Set(mine.map((s) => s.cabinId)).size,
+          totalDuration: total,
+          avg: mine.length ? total / mine.length : 0,
+        };
+      })
+      .filter((r) => r.cabinCount > 0)
+      .sort((a, b) => b.cabinCount - a.cabinCount);
+  }, [filtered]);
+
+  // Summary per cabin
+  const cabinSummary = useMemo(() => {
+    const avgDuration =
+      filtered.filter((s) => s.durationSeconds).reduce((a, s) => a + (s.durationSeconds ?? 0), 0) /
+        Math.max(1, filtered.filter((s) => s.durationSeconds).length);
+    return cabins
+      .map((c) => {
+        const mine = filtered.filter((s) => s.cabinId === c.id);
+        if (!mine.length) return null;
+        const total = mine.reduce((a, s) => a + (s.durationSeconds ?? 0), 0);
+        const last = [...mine].sort((a, b) => b.startTime.getTime() - a.startTime.getTime())[0];
+        return {
+          id: c.id,
+          tagCode: c.tagCode,
+          model: c.model,
+          sessions: mine.length,
+          totalDuration: total,
+          status: last.status,
+          aboveAvg: mine.some((s) => (s.durationSeconds ?? 0) > avgDuration * 1.5),
+        };
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null)
+      .sort((a, b) => b.totalDuration - a.totalDuration);
+  }, [filtered]);
+
+  // Rata-rata durasi per model
+  const modelChart = useMemo(
+    () =>
+      CABIN_MODELS.map((model) => {
+        const ids = cabins.filter((c) => c.model === model).map((c) => c.id);
+        const sessions = filtered.filter(
+          (s) => ids.includes(s.cabinId) && s.durationSeconds,
+        );
+        const avg =
+          sessions.reduce((a, s) => a + (s.durationSeconds ?? 0), 0) /
+          Math.max(1, sessions.length);
+        return { model: model.replace("Cabin ", ""), menit: Math.round(avg / 60) };
+      }),
+    [filtered],
+  );
+
+  const kpis = [
+    { label: "Cabin Diperbaiki Hari Ini", value: completedToday.length, icon: CheckCircle2, tone: "text-emerald-600 bg-emerald-50" },
+    { label: "Sedang Dikerjakan", value: inProgress.length, icon: Loader, tone: "text-blue-600 bg-blue-50" },
+    { label: "Rata-rata Durasi / Cabin", value: fmtDuration(Math.round(avgToday)), icon: Timer, tone: "text-violet-600 bg-violet-50" },
+    { label: "Manpower Aktif Hari Ini", value: activeManpower, icon: Users, tone: "text-cyan-600 bg-cyan-50" },
+    { label: "Sesi Menggantung", value: hanging.length, icon: AlertTriangle, tone: "text-amber-600 bg-amber-50" },
+  ];
+
+  const target = forceCloseTarget ? workSessions.find((s) => s.id === forceCloseTarget) : null;
+
+  return (
+    <div className="p-4 md:p-6 lg:p-8">
+      <PageHeader
+        title="Dashboard"
+        description="Monitoring real-time pengerjaan perbaikan cabin berdasarkan data scan RFID/barcode."
+        actions={
+          <Select value={range} onValueChange={setRange}>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">7 Hari Terakhir</SelectItem>
+              <SelectItem value="14">14 Hari Terakhir</SelectItem>
+              <SelectItem value="30">30 Hari Terakhir</SelectItem>
+            </SelectContent>
+          </Select>
+        }
+      />
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        {kpis.map((k) => (
+          <Card key={k.label}>
+            <CardContent className="flex items-start gap-3 p-4">
+              <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", k.tone)}>
+                <k.icon className="h-4.5 w-4.5" />
+              </span>
+              <div>
+                <p className="text-2xl font-semibold tracking-tight text-foreground">{k.value}</p>
+                <p className="text-xs text-muted-foreground">{k.label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Grafik tren */}
+      <Card className="mt-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold">Tren Cabin Diperbaiki per Hari</CardTitle>
+        </CardHeader>
+        <CardContent className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={trend} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradSelesai" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
+              <Tooltip
+                contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }}
+              />
+              <Area type="monotone" dataKey="selesai" name="Cabin selesai" stroke="var(--primary)" fill="url(#gradSelesai)" strokeWidth={2} />
+              <Area type="monotone" dataKey="rataRata" name="Rata-rata bergerak" stroke="var(--chart-2)" strokeDasharray="5 4" fill="none" strokeWidth={1.5} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Filter */}
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        <Select value={fManpower} onValueChange={setFManpower}>
+          <SelectTrigger className="w-44"><SelectValue placeholder="Semua Manpower" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua Manpower</SelectItem>
+            {manpower.filter((m) => m.isActive).map((m) => (
+              <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={fModel} onValueChange={setFModel}>
+          <SelectTrigger className="w-44"><SelectValue placeholder="Semua Model" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua Model</SelectItem>
+            {CABIN_MODELS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={fLine} onValueChange={setFLine}>
+          <SelectTrigger className="w-40"><SelectValue placeholder="Semua Line" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua Line</SelectItem>
+            {LINE_STATIONS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Sesi menggantung */}
+      {hanging.length > 0 && (
+        <Card className="mt-4 border-amber-200 bg-amber-50/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-amber-800">
+              <AlertTriangle className="h-4 w-4" />
+              Sesi Menggantung — belum di-scan selesai lebih dari 8 jam
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {hanging.map((s) => (
+              <div key={s.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200 bg-card px-3 py-2">
+                <div className="text-sm">
+                  <span className="font-medium">{cabinById(s.cabinId)?.tagCode}</span>
+                  <span className="text-muted-foreground">
+                    {" "}— {manpowerById(s.manpowerId)?.name}, mulai {fmtDateTime(s.startTime)}
+                  </span>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => { setForceCloseTarget(s.id); setForceReason(""); }}>
+                  <Ban className="mr-1.5 h-3.5 w-3.5" />
+                  Tutup Paksa
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Summary manpower & cabin */}
+      <div className="mt-4 grid gap-4 xl:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold">Summary per Manpower</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <THead>
+                <Tr>
+                  <Th column="name" sortable>Nama</Th>
+                  <Th column="cabin" sortable>Cabin</Th>
+                  <Th column="total" sortable>Total Durasi</Th>
+                  <Th column="avg" sortable>Rata-rata</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {manpowerSummary.map((r) => (
+                  <Tr key={r.id}>
+                    <Td>
+                      <p className="font-medium">{r.name}</p>
+                      <p className="text-xs text-muted-foreground">{r.nik}</p>
+                    </Td>
+                    <Td><InlineBar value={r.cabinCount} max={manpowerSummary[0]?.cabinCount ?? 1} /></Td>
+                    <Td>{fmtDuration(r.totalDuration)}</Td>
+                    <Td>{fmtDuration(Math.round(r.avg))}</Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold">Rata-rata Durasi per Model Cabin</CardTitle>
+          </CardHeader>
+          <CardContent className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={modelChart} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="model" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
+                <YAxis tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" unit=" m" />
+                <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }} />
+                <Bar dataKey="menit" name="Rata-rata (menit)" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="mt-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold">Summary per Cabin</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <THead>
+              <Tr>
+                <Th column="tag" sortable>Cabin</Th>
+                <Th column="model" sortable>Model</Th>
+                <Th column="sesi" sortable>Jumlah Sesi</Th>
+                <Th column="durasi" sortable>Total Durasi</Th>
+                <Th>Status Terakhir</Th>
+              </Tr>
+            </THead>
+            <TBody>
+              {cabinSummary.slice(0, 12).map((r) => (
+                <Tr key={r.id}>
+                    <Td className="font-medium">
+                      {r.tagCode}
+                      {r.aboveAvg && (
+                        <Badge variant="outline" className="ml-2 border-amber-300 bg-amber-50 text-amber-700">
+                          Di atas rata-rata
+                        </Badge>
+                      )}
+                    </Td>
+                  <Td>{r.model}</Td>
+                  <Td><InlineBar value={r.sessions} max={cabinSummary[0]?.sessions ?? 1} /></Td>
+                  <Td>{fmtDuration(r.totalDuration)}</Td>
+                  <Td>
+                    <Badge variant="outline" className={STATUS_BADGE[r.status]}>
+                      {STATUS_LABEL[r.status]}
+                    </Badge>
+                  </Td>
+                </Tr>
+              ))}
+            </TBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Dialog tutup paksa */}
+      <Dialog open={!!target} onOpenChange={(o) => !o && setForceCloseTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tutup Paksa Sesi</DialogTitle>
+            <DialogDescription>
+              Sesi {target ? cabinById(target.cabinId)?.tagCode : ""} oleh{" "}
+              {target ? manpowerById(target.manpowerId)?.name : ""} akan ditutup paksa.
+              Alasan akan tercatat di audit log.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder="Alasan force close, mis. teknisi lupa scan selesai saat pulang…"
+            value={forceReason}
+            onChange={(e) => setForceReason(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setForceCloseTarget(null)}>Batal</Button>
+            <Button
+              disabled={forceReason.trim().length < 5}
+              onClick={() => {
+                if (target) setClosedIds((p) => [...p, target.id]);
+                setForceCloseTarget(null);
+                toast.success("Sesi ditutup paksa dan tercatat di audit log.");
+              }}
+            >
+              Tutup Paksa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
