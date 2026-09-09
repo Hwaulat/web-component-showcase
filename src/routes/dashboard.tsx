@@ -109,7 +109,7 @@ function PaginationFooter({ page, setPage, perPage, setPerPage, totalPages, tota
   });
 
   return (
-    <div className="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500 bg-white">
+    <div className="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500 bg-white dark:bg-slate-900">
       <div className="flex items-center gap-3">
         <span>Rows per page</span>
         <Select value={String(perPage)} onValueChange={(v) => { setPerPage(Number(v)); setPage(1); }}>
@@ -123,13 +123,13 @@ function PaginationFooter({ page, setPage, perPage, setPerPage, totalPages, tota
         <span className="ml-2">{start}-{end} of {total}</span>
       </div>
       <div className="flex items-center gap-1">
-        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(1)}><ChevronsLeft className="h-4 w-4" /></Button>
-        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(1)}><ChevronsLeft className="h-4 w-4" /></Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
         {pages.map(p => (
-          <Button key={p} variant="outline" size="icon" onClick={() => setPage(p)} className={cn("h-8 w-8 rounded", p === page ? "bg-[#285BB2] text-white border-[#285BB2] hover:bg-[#1E458B]" : "bg-white text-slate-500 border-slate-200")}>{p}</Button>
+          <Button key={p} variant="outline" size="icon" onClick={() => setPage(p)} className={cn("h-8 w-8 rounded", p === page ? "bg-[#285BB2] text-white border-[#285BB2] hover:bg-[#1E458B]" : "bg-white dark:bg-slate-900 text-slate-500 border-slate-200")}>{p}</Button>
         ))}
-        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
-        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(totalPages)}><ChevronsRight className="h-4 w-4" /></Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(totalPages)}><ChevronsRight className="h-4 w-4" /></Button>
       </div>
     </div>
   );
@@ -359,7 +359,7 @@ function DashboardPage() {
       </div>
 
       {/* Combined Summary Table with Pill Tabs */}
-      <Card className="mt-4 rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white">
+      <Card className="mt-4 rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white dark:bg-slate-900">
         <div className="p-4 flex flex-wrap items-center gap-4 border-b border-slate-100">
           {/* Pill Tablist */}
           <div className="flex gap-0 bg-slate-100 rounded-full p-1">
@@ -367,7 +367,7 @@ function DashboardPage() {
               onClick={() => setSummaryTab("manpower")}
               className={cn(
                 "px-5 py-2 text-sm font-semibold rounded-full transition-colors",
-                summaryTab === "manpower" ? "bg-white text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
+                summaryTab === "manpower" ? "bg-white dark:bg-slate-900 text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
               )}
             >
               Manpower Summary
@@ -376,7 +376,7 @@ function DashboardPage() {
               onClick={() => setSummaryTab("cabin")}
               className={cn(
                 "px-5 py-2 text-sm font-semibold rounded-full transition-colors",
-                summaryTab === "cabin" ? "bg-white text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
+                summaryTab === "cabin" ? "bg-white dark:bg-slate-900 text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
               )}
             >
               Cabin Summary
@@ -388,14 +388,14 @@ function DashboardPage() {
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input
                 placeholder={summaryTab === "manpower" ? "Search by name or NIK" : "Search by tag code or model"}
-                className="pl-9 h-9 text-sm bg-white border-slate-200"
+                className="pl-9 h-9 text-sm bg-white dark:bg-slate-900 border-slate-200"
                 value={summaryTab === "manpower" ? searchManpower : searchCabin}
                 onChange={(e) => summaryTab === "manpower" ? setSearchManpower(e.target.value) : setSearchCabin(e.target.value)}
               />
             </div>
             {summaryTab === "manpower" && (
               <Select value={fManpower} onValueChange={setFManpower}>
-                <SelectTrigger className="w-[160px] h-9 text-sm text-slate-500 bg-white"><SelectValue placeholder="All Manpower" /></SelectTrigger>
+                <SelectTrigger className="w-[160px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900"><SelectValue placeholder="All Manpower" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Manpower</SelectItem>
                   {manpower.filter((m) => m.isActive).map((m) => (
@@ -407,14 +407,14 @@ function DashboardPage() {
             {summaryTab === "cabin" && (
               <>
                 <Select value={fModel} onValueChange={setFModel}>
-                  <SelectTrigger className="w-[160px] h-9 text-sm text-slate-500 bg-white"><SelectValue placeholder="All Model" /></SelectTrigger>
+                  <SelectTrigger className="w-[160px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900"><SelectValue placeholder="All Model" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Model</SelectItem>
                     {CABIN_MODELS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Select value={fLine} onValueChange={setFLine}>
-                  <SelectTrigger className="w-[140px] h-9 text-sm text-slate-500 bg-white"><SelectValue placeholder="All Line" /></SelectTrigger>
+                  <SelectTrigger className="w-[140px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900"><SelectValue placeholder="All Line" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Line</SelectItem>
                     {LINE_STATIONS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}

@@ -198,7 +198,7 @@ function UsersPage() {
           onClick={() => setActiveTab("account")}
           className={cn(
             "px-5 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap",
-            activeTab === "account" ? "bg-white text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
+            activeTab === "account" ? "bg-white dark:bg-slate-900 text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
           )}
         >
           User Account
@@ -207,7 +207,7 @@ function UsersPage() {
           onClick={() => setActiveTab("role")}
           className={cn(
             "px-5 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap",
-            activeTab === "role" ? "bg-white text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
+            activeTab === "role" ? "bg-white dark:bg-slate-900 text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
           )}
         >
           Role Permission
@@ -248,20 +248,20 @@ function UsersPage() {
             </Card>
           </div>
 
-          <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white">
+          <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white dark:bg-slate-900">
             <div className="p-4 flex flex-wrap items-center gap-3 border-b border-slate-100">
               <div className="relative flex-1 min-w-[250px] w-full">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <Input 
                   placeholder="Search by username or email" 
-                  className="pl-9 h-9 text-sm bg-white border-slate-200"
+                  className="pl-9 h-9 text-sm bg-white dark:bg-slate-900 border-slate-200"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
               <div className="flex flex-wrap items-center gap-3 ml-auto">
                 <Select defaultValue="all-role">
-                  <SelectTrigger className="w-[130px] h-9 text-sm text-slate-500 bg-white">
+                  <SelectTrigger className="w-[130px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900">
                     <SelectValue placeholder="All Role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -273,7 +273,7 @@ function UsersPage() {
                 </Select>
 
                 <Select defaultValue="all-dept">
-                  <SelectTrigger className="w-[150px] h-9 text-sm text-slate-500 bg-white">
+                  <SelectTrigger className="w-[150px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900">
                     <SelectValue placeholder="All Department" />
                   </SelectTrigger>
                   <SelectContent>
@@ -283,7 +283,7 @@ function UsersPage() {
                 </Select>
 
                 <Select defaultValue="all-pos">
-                  <SelectTrigger className="w-[130px] h-9 text-sm text-slate-500 bg-white">
+                  <SelectTrigger className="w-[130px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900">
                     <SelectValue placeholder="All Position" />
                   </SelectTrigger>
                   <SelectContent>
@@ -317,10 +317,10 @@ function UsersPage() {
                     <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-6 py-3">
                         <div className="flex items-center justify-center gap-2.5">
-                          <button className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white">
+                          <button className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white dark:bg-slate-900">
                             <Eye className="h-[18px] w-[18px]" strokeWidth={1.5} />
                           </button>
-                          <button className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white">
+                          <button className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white dark:bg-slate-900">
                             <RotateCw className="h-[18px] w-[18px]" strokeWidth={1.5} />
                           </button>
                           <button 
@@ -329,13 +329,13 @@ function UsersPage() {
                               setForm({ ...u });
                               setDialogOpen(true);
                             }}
-                            className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white"
+                            className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white dark:bg-slate-900"
                           >
                             <Pencil className="h-[18px] w-[18px]" strokeWidth={1.5} />
                           </button>
                           <button 
                             onClick={() => deleteUser(u.id)}
-                            className="p-2 text-slate-400 hover:text-red-600 hover:border-red-300 hover:bg-red-50 rounded-xl transition-colors border border-slate-200 bg-white"
+                            className="p-2 text-slate-400 hover:text-red-600 hover:border-red-300 hover:bg-red-50 rounded-xl transition-colors border border-slate-200 bg-white dark:bg-slate-900"
                           >
                             <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.5} />
                           </button>
@@ -380,7 +380,7 @@ function UsersPage() {
               </table>
             </div>
 
-            <div className="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500 bg-white">
+            <div className="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500 bg-white dark:bg-slate-900">
               <div className="flex items-center gap-3">
                 <span>Rows per page</span>
                 <Select defaultValue="10">
@@ -397,19 +397,19 @@ function UsersPage() {
               </div>
               
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled>
+                <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled>
                   <ChevronsLeft className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled>
+                <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled>
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-[#285BB2] text-white border-[#285BB2] hover:bg-[#1E458B]">
                   1
                 </Button>
-                <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled>
+                <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled>
+                <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled>
                   <ChevronsRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -421,7 +421,7 @@ function UsersPage() {
       {activeTab === "role" && (
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="w-full lg:w-[350px] flex flex-col gap-4">
-            <div className="flex items-center justify-between bg-white px-5 py-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between bg-white dark:bg-slate-900 px-5 py-4 rounded-xl border border-slate-200 shadow-sm">
               <h2 className="text-lg font-bold text-slate-800">Roles</h2>
               <Button className="h-9 bg-[#285BB2] hover:bg-[#1E458B] text-white rounded-md">
                 <Plus className="h-4 w-4 mr-1.5" /> Create New Role
@@ -437,7 +437,7 @@ function UsersPage() {
                     onClick={() => setSelectedRoleId(r.id)} 
                     className={cn(
                       "px-5 py-4 rounded-xl border flex items-center justify-between cursor-pointer transition-colors shadow-sm", 
-                      isActive ? "bg-[#285BB2] border-[#285BB2]" : "bg-white border-slate-200 hover:border-slate-300"
+                      isActive ? "bg-[#285BB2] border-[#285BB2]" : "bg-white dark:bg-slate-900 border-slate-200 hover:border-slate-300"
                     )}
                   >
                     <div>
@@ -471,7 +471,7 @@ function UsersPage() {
           </div>
           
           <div className="flex-1">
-            <Card className="bg-white border-slate-200 shadow-sm rounded-xl overflow-hidden h-full">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200 shadow-sm rounded-xl overflow-hidden h-full">
               <div className="p-6 border-b border-slate-100">
                 <h2 className="text-xl font-bold text-slate-800 uppercase tracking-tight">{selectedRoleObj?.name}</h2>
                 <p className="text-[13px] text-slate-500 mt-1">Manage permissions for this role</p>

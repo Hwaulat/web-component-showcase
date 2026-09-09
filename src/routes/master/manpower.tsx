@@ -51,7 +51,7 @@ function PaginationFooter({ page, setPage, perPage, setPerPage, totalPages, tota
     return page - 2 + i;
   });
   return (
-    <div className="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500 bg-white">
+    <div className="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500 bg-white dark:bg-slate-900">
       <div className="flex items-center gap-3">
         <span>Rows per page</span>
         <Select value={String(perPage)} onValueChange={(v) => { setPerPage(Number(v)); setPage(1); }}>
@@ -65,13 +65,13 @@ function PaginationFooter({ page, setPage, perPage, setPerPage, totalPages, tota
         <span className="ml-2">{start}-{end} of {total}</span>
       </div>
       <div className="flex items-center gap-1">
-        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(1)}><ChevronsLeft className="h-4 w-4" /></Button>
-        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(1)}><ChevronsLeft className="h-4 w-4" /></Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
         {pages.map(p => (
-          <Button key={p} variant="outline" size="icon" onClick={() => setPage(p)} className={cn("h-8 w-8 rounded", p === page ? "bg-[#285BB2] text-white border-[#285BB2] hover:bg-[#1E458B]" : "bg-white text-slate-500 border-slate-200")}>{p}</Button>
+          <Button key={p} variant="outline" size="icon" onClick={() => setPage(p)} className={cn("h-8 w-8 rounded", p === page ? "bg-[#285BB2] text-white border-[#285BB2] hover:bg-[#1E458B]" : "bg-white dark:bg-slate-900 text-slate-500 border-slate-200")}>{p}</Button>
         ))}
-        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
-        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(totalPages)}><ChevronsRight className="h-4 w-4" /></Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white dark:bg-slate-900 text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(totalPages)}><ChevronsRight className="h-4 w-4" /></Button>
       </div>
     </div>
   );
@@ -122,19 +122,19 @@ function MasterManpowerPage() {
         </Badge>
       </div>
 
-      <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white">
+      <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white dark:bg-slate-900">
         <div className="p-4 flex flex-wrap items-center gap-3 border-b border-slate-100">
           <div className="relative flex-1 min-w-[200px] w-full">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Search by name or NIK"
-              className="pl-9 h-9 text-sm bg-white border-slate-200"
+              className="pl-9 h-9 text-sm bg-white dark:bg-slate-900 border-slate-200"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <Select value={fDept} onValueChange={setFDept}>
-            <SelectTrigger className="w-[180px] h-9 text-sm text-slate-500 bg-white"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[180px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Department</SelectItem>
               {departments.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
