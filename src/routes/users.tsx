@@ -301,7 +301,7 @@ function UsersPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                <thead className="text-[11px] bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="px-6 py-3.5 text-center w-[160px]">ACTION</th>
                     <th className="px-6 py-3.5 text-center w-[80px]">STATUS</th>
@@ -312,9 +312,9 @@ function UsersPage() {
                     <th className="px-6 py-3.5">PHONE</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {filteredUsers.map((u) => (
-                    <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-6 py-3">
                         <div className="flex items-center justify-center gap-2.5">
                           <button className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white">

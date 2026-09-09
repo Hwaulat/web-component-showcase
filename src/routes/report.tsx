@@ -253,7 +253,7 @@ function ReportPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                <thead className="text-[11px] bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="px-6 py-3.5">DATE</th>
                     <th className="px-6 py-3.5">CABIN COMPLETED</th>
@@ -261,9 +261,9 @@ function ReportPage() {
                     <th className="px-6 py-3.5">TOTAL DURATION</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {harianPag.paged.map((r) => (
-                    <tr key={r.date} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={r.date} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
 
                       <td className="px-6 py-3 font-semibold text-slate-700">{r.date}</td>
                       <td className="px-6 py-3 text-slate-600">{r.selesai}</td>
@@ -283,7 +283,7 @@ function ReportPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                <thead className="text-[11px] bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="px-6 py-3.5 w-[60px]">RANK</th>
                     <th className="px-6 py-3.5">NAME</th>
@@ -292,9 +292,9 @@ function ReportPage() {
                     <th className="px-6 py-3.5">AVG / CABIN</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {prodPag.paged.map((r) => (
-                    <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={r.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
 
                       <td className="px-6 py-3">
                         <span className={cn("flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold",
@@ -321,7 +321,7 @@ function ReportPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                <thead className="text-[11px] bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="px-6 py-3.5">CABIN CODE</th>
                     <th className="px-6 py-3.5">MODEL</th>
@@ -331,9 +331,9 @@ function ReportPage() {
                     <th className="px-6 py-3.5">REMARKS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {cabinPag.paged.map((r) => (
-                    <tr key={r.tag} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={r.tag} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
 
                       <td className="px-6 py-3 font-semibold text-slate-700">{r.tag}</td>
                       <td className="px-6 py-3 text-slate-600">{r.model}</td>
@@ -361,7 +361,7 @@ function ReportPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                <thead className="text-[11px] bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="px-6 py-3.5">CABIN</th>
                     <th className="px-6 py-3.5">MANPOWER</th>
@@ -370,12 +370,12 @@ function ReportPage() {
                     <th className="px-6 py-3.5">REMARKS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {hangPag.paged.length === 0 && (
                     <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">Tidak ada sesi menggantung pada periode ini.</td></tr>
                   )}
                   {hangPag.paged.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={s.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
 
                       <td className="px-6 py-3 font-semibold text-slate-700">{cabinById(s.cabinId)?.tagCode}</td>
                       <td className="px-6 py-3 text-slate-600">{manpowerById(s.manpowerId)?.name}</td>

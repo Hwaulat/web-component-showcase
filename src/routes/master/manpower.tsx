@@ -144,7 +144,7 @@ function MasterManpowerPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left whitespace-nowrap">
-            <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+            <thead className="text-[11px] bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-700">
               <tr>
                 <th className="px-6 py-3.5">NIK</th>
                 <th className="px-6 py-3.5">NAME</th>
@@ -153,9 +153,9 @@ function MasterManpowerPage() {
                 <th className="px-6 py-3.5">LAST SYNC</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {pag.paged.map((m) => (
-                <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={m.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                   <td className="px-6 py-3 font-semibold text-slate-700">{m.nik}</td>
                   <td className="px-6 py-3 text-slate-600">{m.name}</td>
                   <td className="px-6 py-3 text-slate-600">{m.department}</td>

@@ -430,7 +430,7 @@ function DashboardPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                <thead className="text-[11px] bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-700">
                   <tr>
                     <th className="px-6 py-3.5">NAME</th>
                     <th className="px-6 py-3.5">CABIN COUNT</th>
@@ -438,9 +438,9 @@ function DashboardPage() {
                     <th className="px-6 py-3.5">AVERAGE</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {mpPag.paged.map((r) => (
-                    <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={r.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-6 py-3">
                         <div><span className="font-semibold text-slate-700">{r.name}</span></div>
                         <div className="text-[11px] text-slate-400">{r.nik}</div>
