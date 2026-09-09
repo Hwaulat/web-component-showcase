@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppSidebar } from "../components/app-sidebar";
 import { AppHeader } from "../components/app-header";
 import { Toaster } from "../components/ui/sonner";
+import { cn } from "../lib/utils";
 
 function NotFoundComponent() {
   return (
@@ -119,12 +120,13 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppSidebar />
-      <div className="flex min-h-screen flex-col md:pl-64">
-        <AppHeader />
+      <AppSidebar isOpen={sidebarOpen} />
+      <div className={cn("flex min-h-screen flex-col transition-all duration-300", sidebarOpen ? "md:pl-64" : "md:pl-0")}>
+        <AppHeader onMenuClick={() => setSidebarOpen(o => !o)} />
         <main className="flex-1">
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />

@@ -10,7 +10,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-export function AppSidebar({ className }: { className?: string }) {
+export function AppSidebar({ className, isOpen = true }: { className?: string, isOpen?: boolean }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const masterActive = pathname.startsWith("/master");
   const [masterOpen, setMasterOpen] = useState(true);
@@ -18,7 +18,8 @@ export function AppSidebar({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-[#0B1527] text-slate-300 md:flex shadow-xl",
+        "fixed inset-y-0 left-0 z-40 w-64 flex-col bg-[#0B1527] text-slate-300 md:flex shadow-xl transition-transform duration-300",
+        isOpen ? "translate-x-0" : "-translate-x-full",
         className
       )}
     >
