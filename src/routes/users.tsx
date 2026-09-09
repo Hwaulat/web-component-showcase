@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Eye, RotateCw, Pencil, Trash2, Users2, UserCheck, UserX, Search, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Eye, RotateCw, Pencil, Trash2, Users2, UserCheck, UserX, Search, Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 
 import { Card } from "@/components/ui/card";
@@ -530,6 +530,20 @@ function UsersPage() {
           </div>
 
           <div className="px-6 pb-6 space-y-5">
+            {/* Photo Upload Section */}
+            <div className="flex flex-col items-center justify-center gap-3 pb-2 pt-2">
+              <div className="h-20 w-20 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
+                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${form.name || 'placeholder'}`} alt="preview" className="h-full w-full object-cover opacity-50" />
+              </div>
+              <div className="flex flex-col items-center">
+                <Label htmlFor="photo-upload" className="cursor-pointer text-xs font-semibold text-[#285BB2] hover:text-[#1E458B] bg-blue-50 px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5">
+                  <UploadCloud className="h-3.5 w-3.5" />
+                  Upload Photo
+                </Label>
+                <Input id="photo-upload" type="file" accept="image/*" className="hidden" />
+              </div>
+            </div>
+
             {/* Row 1: Username + Email */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
