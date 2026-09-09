@@ -172,7 +172,6 @@ function MasterCabinPage() {
           <table className="w-full text-sm text-left whitespace-nowrap">
             <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
               <tr>
-                <th className="px-6 py-3.5 text-center w-[120px]">ACTION</th>
                 <th className="px-6 py-3.5">TAG CODE</th>
                 <th className="px-6 py-3.5">MODEL</th>
                 <th className="px-6 py-3.5">LINE / STATION</th>
@@ -184,13 +183,6 @@ function MasterCabinPage() {
             <tbody className="divide-y divide-slate-100">
               {pag.paged.map((c) => (
                 <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-3">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Eye className="h-4 w-4" /></button>
-                      <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Pencil className="h-4 w-4" /></button>
-                      <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Trash2 className="h-4 w-4" /></button>
-                    </div>
-                  </td>
                   <td className="px-6 py-3 font-semibold text-slate-700">{c.tagCode}</td>
                   <td className="px-6 py-3 text-slate-600">{c.model}</td>
                   <td className="px-6 py-3 text-slate-600">{c.lineStation}</td>
