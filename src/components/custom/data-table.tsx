@@ -235,7 +235,7 @@ const Table = ({
     const total = columnWidths.reduce((sum, width) => sum + width, 0)
     if (total >= containerWidth) return columnWidths
     const next = [...columnWidths]
-    next[next.length - 1] += containerWidth - total
+    next[next.length - 1] = (next[next.length - 1] ?? 0) + (containerWidth - total)
     return next
   }, [columnWidths, containerWidth])
 

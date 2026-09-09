@@ -112,7 +112,10 @@ export function AppTabs({
     value !== undefined ? { value, onValueChange } : undefined;
   const uncontrolledProps =
     value === undefined
-      ? { defaultValue: defaultValue ?? items[0]?.value }
+      ? (() => {
+          const dv = defaultValue ?? items[0]?.value;
+          return dv !== undefined ? { defaultValue: dv } : undefined;
+        })()
       : undefined;
 
   const tabsList = (
