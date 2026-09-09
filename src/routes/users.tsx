@@ -316,12 +316,12 @@ function UsersPage() {
                   {filteredUsers.map((u) => (
                     <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-3">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white">
-                            <Eye className="h-4 w-4" />
+                        <div className="flex items-center justify-center gap-2.5">
+                          <button className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white">
+                            <Eye className="h-[18px] w-[18px]" strokeWidth={1.5} />
                           </button>
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white">
-                            <RotateCw className="h-4 w-4" />
+                          <button className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white">
+                            <RotateCw className="h-[18px] w-[18px]" strokeWidth={1.5} />
                           </button>
                           <button 
                             onClick={() => {
@@ -329,15 +329,15 @@ function UsersPage() {
                               setForm({ ...u });
                               setDialogOpen(true);
                             }}
-                            className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"
+                            className="p-2 text-slate-400 hover:text-[#285BB2] hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-colors border border-slate-200 bg-white"
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="h-[18px] w-[18px]" strokeWidth={1.5} />
                           </button>
                           <button 
                             onClick={() => deleteUser(u.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"
+                            className="p-2 text-slate-400 hover:text-red-600 hover:border-red-300 hover:bg-red-50 rounded-xl transition-colors border border-slate-200 bg-white"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.5} />
                           </button>
                         </div>
                       </td>
