@@ -193,12 +193,12 @@ function UsersPage() {
         <p className="text-sm text-slate-400 mt-1">Manage users, roles, and permissions</p>
       </div>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-0 bg-slate-100 rounded-full p-1 mb-6 w-fit overflow-x-auto">
         <button 
           onClick={() => setActiveTab("account")}
           className={cn(
-            "px-5 py-2 text-sm font-semibold rounded-full shadow-sm transition-colors",
-            activeTab === "account" ? "border border-blue-200 text-blue-600 bg-white" : "text-slate-500 hover:bg-slate-100"
+            "px-5 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap",
+            activeTab === "account" ? "bg-white text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
           )}
         >
           User Account
@@ -206,8 +206,8 @@ function UsersPage() {
         <button 
           onClick={() => setActiveTab("role")}
           className={cn(
-            "px-5 py-2 text-sm font-semibold rounded-full shadow-sm transition-colors",
-            activeTab === "role" ? "border border-blue-200 text-blue-600 bg-white" : "text-slate-500 hover:bg-slate-100"
+            "px-5 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap",
+            activeTab === "role" ? "bg-white text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
           )}
         >
           Role Permission

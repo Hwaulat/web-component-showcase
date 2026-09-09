@@ -192,14 +192,14 @@ function ReportPage() {
       />
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 flex-wrap">
+      <div className="flex gap-0 bg-slate-100 rounded-full p-1 mb-6 w-fit overflow-x-auto">
         {tabs.map(t => (
           <button
             key={t.value}
             onClick={() => setActiveReport(t.value)}
             className={cn(
-              "px-5 py-2 text-sm font-semibold rounded-full shadow-sm transition-colors",
-              activeReport === t.value ? "border border-blue-200 text-blue-600 bg-white" : "text-slate-500 hover:bg-slate-100"
+              "px-5 py-2 text-sm font-semibold rounded-full transition-colors whitespace-nowrap",
+              activeReport === t.value ? "bg-white text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
             )}
           >
             {t.label}
