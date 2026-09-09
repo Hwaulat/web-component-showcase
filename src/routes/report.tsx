@@ -255,7 +255,6 @@ function ReportPage() {
               <table className="w-full text-sm text-left whitespace-nowrap">
                 <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
                   <tr>
-                    <th className="px-6 py-3.5 text-center w-[120px]">ACTION</th>
                     <th className="px-6 py-3.5">DATE</th>
                     <th className="px-6 py-3.5">CABIN COMPLETED</th>
                     <th className="px-6 py-3.5">MANPOWER INVOLVED</th>
@@ -265,13 +264,7 @@ function ReportPage() {
                 <tbody className="divide-y divide-slate-100">
                   {harianPag.paged.map((r) => (
                     <tr key={r.date} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-3">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Eye className="h-4 w-4" /></button>
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Pencil className="h-4 w-4" /></button>
-                          <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Trash2 className="h-4 w-4" /></button>
-                        </div>
-                      </td>
+
                       <td className="px-6 py-3 font-semibold text-slate-700">{r.date}</td>
                       <td className="px-6 py-3 text-slate-600">{r.selesai}</td>
                       <td className="px-6 py-3 text-slate-600">{r.manpower}</td>
@@ -292,7 +285,6 @@ function ReportPage() {
               <table className="w-full text-sm text-left whitespace-nowrap">
                 <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
                   <tr>
-                    <th className="px-6 py-3.5 text-center w-[120px]">ACTION</th>
                     <th className="px-6 py-3.5 w-[60px]">RANK</th>
                     <th className="px-6 py-3.5">NAME</th>
                     <th className="px-6 py-3.5">TOTAL CABIN</th>
@@ -303,13 +295,7 @@ function ReportPage() {
                 <tbody className="divide-y divide-slate-100">
                   {prodPag.paged.map((r) => (
                     <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-3">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Eye className="h-4 w-4" /></button>
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Pencil className="h-4 w-4" /></button>
-                          <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Trash2 className="h-4 w-4" /></button>
-                        </div>
-                      </td>
+
                       <td className="px-6 py-3">
                         <span className={cn("flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold",
                           r.rank === 1 ? "bg-amber-100 text-amber-700" : r.rank <= 3 ? "bg-muted text-foreground" : "text-muted-foreground")}>{r.rank}</span>
@@ -337,7 +323,6 @@ function ReportPage() {
               <table className="w-full text-sm text-left whitespace-nowrap">
                 <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
                   <tr>
-                    <th className="px-6 py-3.5 text-center w-[120px]">ACTION</th>
                     <th className="px-6 py-3.5">CABIN CODE</th>
                     <th className="px-6 py-3.5">MODEL</th>
                     <th className="px-6 py-3.5">SESSIONS</th>
@@ -349,13 +334,7 @@ function ReportPage() {
                 <tbody className="divide-y divide-slate-100">
                   {cabinPag.paged.map((r) => (
                     <tr key={r.tag} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-3">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Eye className="h-4 w-4" /></button>
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Pencil className="h-4 w-4" /></button>
-                          <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Trash2 className="h-4 w-4" /></button>
-                        </div>
-                      </td>
+
                       <td className="px-6 py-3 font-semibold text-slate-700">{r.tag}</td>
                       <td className="px-6 py-3 text-slate-600">{r.model}</td>
                       <td className="px-6 py-3 text-slate-600">{r.count}</td>
@@ -384,7 +363,6 @@ function ReportPage() {
               <table className="w-full text-sm text-left whitespace-nowrap">
                 <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
                   <tr>
-                    <th className="px-6 py-3.5 text-center w-[120px]">ACTION</th>
                     <th className="px-6 py-3.5">CABIN</th>
                     <th className="px-6 py-3.5">MANPOWER</th>
                     <th className="px-6 py-3.5">START TIME</th>
@@ -398,13 +376,7 @@ function ReportPage() {
                   )}
                   {hangPag.paged.map((s) => (
                     <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-3">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Eye className="h-4 w-4" /></button>
-                          <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Pencil className="h-4 w-4" /></button>
-                          <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Trash2 className="h-4 w-4" /></button>
-                        </div>
-                      </td>
+
                       <td className="px-6 py-3 font-semibold text-slate-700">{cabinById(s.cabinId)?.tagCode}</td>
                       <td className="px-6 py-3 text-slate-600">{manpowerById(s.manpowerId)?.name}</td>
                       <td className="px-6 py-3 text-slate-600">{fmtDateTime(s.startTime)}</td>
