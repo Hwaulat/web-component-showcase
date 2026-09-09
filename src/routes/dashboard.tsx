@@ -303,8 +303,8 @@ function DashboardPage() {
       </div>
 
       {/* Charts: Tren (Area) + Durasi per Model (Pie) side by side */}
-      <div className="mt-4 grid gap-4 xl:grid-cols-2">
-        <Card>
+      <div className="mt-4 flex flex-col xl:flex-row gap-4">
+        <Card className="flex-1">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Tren Cabin Diperbaiki per Hari</CardTitle>
           </CardHeader>
@@ -328,7 +328,7 @@ function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="w-full xl:w-[450px] shrink-0">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold">Rata-rata Durasi per Model Cabin</CardTitle>
           </CardHeader>
