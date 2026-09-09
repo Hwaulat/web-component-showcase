@@ -10,33 +10,102 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ReportRouteImport } from './routes/report'
+import { Route as UsersRouteImport } from './routes/users'
+import { Route as MasterCabinRouteImport } from './routes/master/cabin'
+import { Route as MasterManpowerRouteImport } from './routes/master/manpower'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportRoute = ReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasterCabinRoute = MasterCabinRouteImport.update({
+  id: '/master/cabin',
+  path: '/master/cabin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasterManpowerRoute = MasterManpowerRouteImport.update({
+  id: '/master/manpower',
+  path: '/master/manpower',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/report': typeof ReportRoute
+  '/users': typeof UsersRoute
+  '/master/cabin': typeof MasterCabinRoute
+  '/master/manpower': typeof MasterManpowerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/report': typeof ReportRoute
+  '/users': typeof UsersRoute
+  '/master/cabin': typeof MasterCabinRoute
+  '/master/manpower': typeof MasterManpowerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/report': typeof ReportRoute
+  '/users': typeof UsersRoute
+  '/master/cabin': typeof MasterCabinRoute
+  '/master/manpower': typeof MasterManpowerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/report'
+    | '/users'
+    | '/master/cabin'
+    | '/master/manpower'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/report'
+    | '/users'
+    | '/master/cabin'
+    | '/master/manpower'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/report'
+    | '/users'
+    | '/master/cabin'
+    | '/master/manpower'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  ReportRoute: typeof ReportRoute
+  UsersRoute: typeof UsersRoute
+  MasterCabinRoute: typeof MasterCabinRoute
+  MasterManpowerRoute: typeof MasterManpowerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +117,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report': {
+      id: '/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/master/cabin': {
+      id: '/master/cabin'
+      path: '/master/cabin'
+      fullPath: '/master/cabin'
+      preLoaderRoute: typeof MasterCabinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/master/manpower': {
+      id: '/master/manpower'
+      path: '/master/manpower'
+      fullPath: '/master/manpower'
+      preLoaderRoute: typeof MasterManpowerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
+  ReportRoute: ReportRoute,
+  UsersRoute: UsersRoute,
+  MasterCabinRoute: MasterCabinRoute,
+  MasterManpowerRoute: MasterManpowerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
