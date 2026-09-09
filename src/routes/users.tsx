@@ -521,42 +521,45 @@ function UsersPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        {/* Same as before */}
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Edit User" : "Create New User"}</DialogTitle>
-          </DialogHeader>
-
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right text-slate-600 font-medium">Username</Label>
-              <Input
-                id="name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="col-span-3 border-slate-200"
-                placeholder="Name"
-              />
+        <DialogContent className="sm:max-w-[700px] p-0 gap-0 overflow-hidden">
+          <div className="flex items-center gap-3 px-6 pt-6 pb-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+              <Plus className="h-5 w-5 text-[#285BB2]" />
             </div>
-            
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="email" className="text-right text-slate-600 font-medium">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="col-span-3 border-slate-200"
-                placeholder="Email address"
-              />
+            <DialogTitle className="text-lg font-bold text-slate-800">{editingId ? "Edit User" : "Create New User"}</DialogTitle>
+          </div>
+
+          <div className="px-6 pb-6 space-y-5">
+            {/* Row 1: Username + Email */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-slate-700">Username<span className="text-red-500">*</span></Label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="border-slate-200 h-10"
+                  placeholder="ex. andre"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-slate-700">Email<span className="text-red-500">*</span></Label>
+                <Input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="border-slate-200 h-10"
+                  placeholder="ex. jsgi18@gmail.com"
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="role" className="text-right text-slate-600 font-medium">Role</Label>
-              <div className="col-span-3">
+            {/* Row 2: Role + Department + Position */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-slate-700">Role<span className="text-red-500">*</span></Label>
                 <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
-                  <SelectTrigger className="border-slate-200">
-                    <SelectValue placeholder="Select a role" />
+                  <SelectTrigger className="border-slate-200 h-10">
+                    <SelectValue placeholder="Choose role" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="SUPER ADMIN">SUPER ADMIN</SelectItem>
@@ -566,14 +569,11 @@ function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="department" className="text-right text-slate-600 font-medium">Department</Label>
-              <div className="col-span-3">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-slate-700">Department<span className="text-red-500">*</span></Label>
                 <Select value={form.department} onValueChange={(v) => setForm({ ...form, department: v })}>
-                  <SelectTrigger className="border-slate-200">
-                    <SelectValue placeholder="Select department" />
+                  <SelectTrigger className="border-slate-200 h-10">
+                    <SelectValue placeholder="Choose department" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="MECHANICAL">MECHANICAL</SelectItem>
@@ -581,47 +581,50 @@ function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-slate-700">Position<span className="text-red-500">*</span></Label>
+                <Select value={form.position} onValueChange={(v) => setForm({ ...form, position: v })}>
+                  <SelectTrigger className="border-slate-200 h-10">
+                    <SelectValue placeholder="Choose position" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Manager">Manager</SelectItem>
+                    <SelectItem value="Supervisor">Supervisor</SelectItem>
+                    <SelectItem value="Operator">Operator</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="position" className="text-right text-slate-600 font-medium">Position</Label>
-              <Input
-                id="position"
-                value={form.position}
-                onChange={(e) => setForm({ ...form, position: e.target.value })}
-                className="col-span-3 border-slate-200"
-                placeholder="Position (e.g. Supervisor)"
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phone" className="text-right text-slate-600 font-medium">Phone</Label>
-              <Input
-                id="phone"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="col-span-3 border-slate-200"
-                placeholder="Phone number"
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4 mt-2">
-              <Label className="text-right text-slate-600 font-medium">Status</Label>
-              <div className="col-span-3 flex items-center gap-3">
-                <Switch 
-                  checked={form.isActive} 
-                  onCheckedChange={(val) => setForm({ ...form, isActive: val })}
-                  className="data-[state=checked]:bg-[#285BB2]"
+            {/* Row 3: Phone + Status */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-slate-700">Phone<span className="text-red-500">*</span></Label>
+                <Input
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="border-slate-200 h-10"
+                  placeholder="ex. 0812-3456-7890"
                 />
-                <span className="text-sm text-slate-500">{form.isActive ? "Active" : "Inactive"}</span>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-slate-700">Status</Label>
+                <div className="flex items-center gap-3 h-10">
+                  <Switch 
+                    checked={form.isActive} 
+                    onCheckedChange={(val) => setForm({ ...form, isActive: val })}
+                    className="data-[state=checked]:bg-[#285BB2]"
+                  />
+                  <span className="text-sm text-slate-500">{form.isActive ? "Active" : "Inactive"}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={saveUser} className="bg-[#285BB2] hover:bg-[#1E458B] text-white">Save</Button>
-          </DialogFooter>
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="px-6">Cancel</Button>
+            <Button onClick={saveUser} className="px-6 bg-[#285BB2] hover:bg-[#1E458B] text-white">Save</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
