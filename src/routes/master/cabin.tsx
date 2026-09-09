@@ -118,11 +118,11 @@ function MasterCabinPage() {
     <div className="p-4 md:p-6 lg:p-8 bg-slate-50/50 min-h-screen">
       <PageHeader
         title="Master Cabin"
-        description="Data cabin disinkronkan dari sistem produksi — read-only, tidak ada tambah/edit/hapus di sini."
+        description="Cabin data synchronized from production system — read-only, no add/edit/delete here."
         actions={
           <Button onClick={doSync} disabled={syncing} className="bg-[#285BB2] hover:bg-[#1E458B] text-white">
             <RefreshCw className={`mr-1.5 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-            {syncing ? "Menyinkronkan…" : "Sync Sekarang"}
+            {syncing ? "Syncing..." : "Sync Now"}
           </Button>
         }
       />
@@ -131,12 +131,12 @@ function MasterCabinPage() {
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Badge variant="outline" className="border-emerald-200 bg-emerald-50 px-3 py-1.5 text-emerald-700">
           <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
-          Terakhir sync: {lastSync ? fmtDateTime(lastSync.startedAt) : "—"} · {lastSync?.recordsSynced ?? 0} record
+          Last sync: {lastSync ? fmtDateTime(lastSync.startedAt) : "—"} · {lastSync?.recordsSynced ?? 0} record
         </Badge>
         {lastFailed && (
           <Badge variant="outline" className="border-red-200 bg-red-50 px-3 py-1.5 text-red-700">
             <XCircle className="mr-1.5 h-3.5 w-3.5" />
-            Percobaan sebelumnya gagal: {lastFailed.errorMessage} ({fmtDateTime(lastFailed.startedAt)})
+            Previous attempt failed: {lastFailed.errorMessage} ({fmtDateTime(lastFailed.startedAt)})
           </Badge>
         )}
       </div>

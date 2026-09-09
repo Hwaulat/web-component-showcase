@@ -98,7 +98,7 @@ function MasterManpowerPage() {
     setSyncing(true);
     setTimeout(() => {
       setSyncing(false);
-      toast.success("Sync selesai — 8 record manpower diperbarui dari sistem HR.");
+      toast.success("Sync completed — 8 manpower records updated from the HR system.");
     }, 1500);
   };
 
@@ -106,11 +106,11 @@ function MasterManpowerPage() {
     <div className="p-4 md:p-6 lg:p-8 bg-slate-50/50 min-h-screen">
       <PageHeader
         title="Master Manpower"
-        description="Roster sumber dari sistem HR — read-only. Pengaturan akun login ada di Users Management."
+        description="Source roster from HR system — read-only. Login account settings are in Users Management."
         actions={
           <Button onClick={doSync} disabled={syncing} className="bg-[#285BB2] hover:bg-[#1E458B] text-white">
             <RefreshCw className={`mr-1.5 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-            {syncing ? "Menyinkronkan…" : "Sync Sekarang"}
+            {syncing ? "Syncing..." : "Sync Now"}
           </Button>
         }
       />
@@ -118,7 +118,7 @@ function MasterManpowerPage() {
       <div className="mb-4">
         <Badge variant="outline" className="border-emerald-200 bg-emerald-50 px-3 py-1.5 text-emerald-700">
           <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
-          Terakhir sync: {lastSync ? fmtDateTime(lastSync.startedAt) : "—"} · {lastSync?.recordsSynced ?? 0} record
+          Last sync: {lastSync ? fmtDateTime(lastSync.startedAt) : "—"} · {lastSync?.recordsSynced ?? 0} record
         </Badge>
       </div>
 

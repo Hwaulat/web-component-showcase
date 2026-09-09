@@ -29,7 +29,7 @@ export function AppSidebar({ className, isOpen = true }: { className?: string, i
         </div>
         <div className="flex flex-col leading-tight">
           <span className="text-[15px] font-bold text-white tracking-wide">CabinTrack</span>
-          <span className="text-[11px] font-medium text-blue-400">Monitoring Perbaikan</span>
+          <span className="text-[11px] font-medium text-blue-400">Repair Monitoring</span>
         </div>
       </div>
 

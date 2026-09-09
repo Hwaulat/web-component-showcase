@@ -306,7 +306,7 @@ function DashboardPage() {
       <div className="mt-4 flex flex-col xl:flex-row gap-4">
         <Card className="flex-1">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">Tren Cabin Diperbaiki per Hari</CardTitle>
+            <CardTitle className="text-sm font-semibold">Cabin Repaired Trend per Day</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -330,7 +330,7 @@ function DashboardPage() {
 
         <Card className="w-full xl:w-[450px] shrink-0">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">Rata-rata Durasi per Model Cabin</CardTitle>
+            <CardTitle className="text-sm font-semibold">Average Duration per Cabin Model</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -370,7 +370,7 @@ function DashboardPage() {
                 summaryTab === "manpower" ? "bg-white text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
               )}
             >
-              Summary per Manpower
+              Manpower Summary
             </button>
             <button
               onClick={() => setSummaryTab("cabin")}
@@ -379,7 +379,7 @@ function DashboardPage() {
                 summaryTab === "cabin" ? "bg-white text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
               )}
             >
-              Summary per Cabin
+              Cabin Summary
             </button>
           </div>
 

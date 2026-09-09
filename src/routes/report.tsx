@@ -178,7 +178,7 @@ function ReportPage() {
   const hangPag = usePagination(hangingRows);
 
   const tabs: { value: ReportType; label: string }[] = [
-    { value: "harian", label: "Laporan Harian" },
+    { value: "harian", label: "Daily Report" },
     { value: "manpower", label: "Produktivitas Manpower" },
     { value: "cabin", label: "Durasi per Cabin/Model" },
     { value: "hanging", label: "Sesi Menggantung" },
@@ -372,7 +372,7 @@ function ReportPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {hangPag.paged.length === 0 && (
-                    <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">Tidak ada sesi menggantung pada periode ini.</td></tr>
+                    <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">No pending sessions in this period.</td></tr>
                   )}
                   {hangPag.paged.map((s) => (
                     <tr key={s.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">

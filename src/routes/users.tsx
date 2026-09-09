@@ -138,21 +138,21 @@ function UsersPage() {
   };
 
   const saveUser = () => {
-    if (!form.name || !form.email) return toast.error("Nama dan Email harus diisi.");
+    if (!form.name || !form.email) return toast.error("Name and Email are required.");
     if (editingId) {
       setUsers(prev => prev.map(u => u.id === editingId ? { ...u, ...form } : u));
-      toast.success("User berhasil diperbarui.");
+      toast.success("User successfully updated.");
     } else {
       const newUser: ShowcaseUser = { ...form, id: `usr-${Date.now()}`, avatarSeed: form.name.replace(/\s+/g, "").toLowerCase() };
       setUsers(prev => [...prev, newUser]);
-      toast.success("User baru berhasil ditambahkan.");
+      toast.success("New user successfully added.");
     }
     setDialogOpen(false);
   };
 
   const deleteUser = (id: string) => {
     setUsers(prev => prev.filter((u) => u.id !== id));
-    toast.success("User berhasil dihapus.");
+    toast.success("User successfully deleted.");
   };
 
   const togglePermission = (menuName: string, field: keyof Permission, value: boolean) => {
