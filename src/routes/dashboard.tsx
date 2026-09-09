@@ -7,6 +7,14 @@ import {
   Users,
   AlertTriangle,
   Ban,
+  Eye,
+  Pencil,
+  Trash2,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import {
   Area,
@@ -24,6 +32,8 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -40,8 +50,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Table, TBody, THead, Th, Td, Tr } from "@/components/custom/data-table";
 import {
   CABIN_MODELS,
   LINE_STATIONS,
@@ -78,16 +86,60 @@ const STATUS_BADGE: Record<SessionStatus, string> = {
   force_closed: "bg-amber-100 text-amber-700 border-amber-200",
 };
 
-function InlineBar({ value, max }: { value: number; max: number }) {
+function usePagination<T>(data: T[], defaultPerPage = 10) {
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(defaultPerPage);
+  const totalPages = Math.max(1, Math.ceil(data.length / perPage));
+  const safeP = Math.min(page, totalPages);
+  const paged = data.slice((safeP - 1) * perPage, safeP * perPage);
+  return { page: safeP, setPage, perPage, setPerPage, totalPages, paged, total: data.length };
+}
+
+function PaginationFooter({ page, setPage, perPage, setPerPage, totalPages, total, showing }: {
+  page: number; setPage: (p: number) => void; perPage: number; setPerPage: (p: number) => void; totalPages: number; total: number; showing: number;
+}) {
+  const start = (page - 1) * perPage + 1;
+  const end = start + showing - 1;
+  const pages = Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+    if (totalPages <= 5) return i + 1;
+    if (page <= 3) return i + 1;
+    if (page >= totalPages - 2) return totalPages - 4 + i;
+    return page - 2 + i;
+  });
+
   return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full rounded-full bg-primary"
-          style={{ width: `${max > 0 ? Math.round((value / max) * 100) : 0}%` }}
-        />
+    <div className="p-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500 bg-white">
+      <div className="flex items-center gap-3">
+        <span>Rows per page</span>
+        <Select value={String(perPage)} onValueChange={(v) => { setPerPage(Number(v)); setPage(1); }}>
+          <SelectTrigger className="w-[70px] h-8 bg-slate-50 border-slate-200"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="20">20</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="ml-2">{start}-{end} of {total}</span>
       </div>
-      <span className="text-sm font-medium">{value}</span>
+      <div className="flex items-center gap-1">
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(1)}>
+          <ChevronsLeft className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        {pages.map(p => (
+          <Button key={p} variant="outline" size="icon" onClick={() => setPage(p)} className={cn("h-8 w-8 rounded", p === page ? "bg-[#285BB2] text-white border-[#285BB2] hover:bg-[#1E458B]" : "bg-white text-slate-500 border-slate-200")}>
+            {p}
+          </Button>
+        ))}
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" className="h-8 w-8 rounded bg-white text-slate-400 border-slate-200" disabled={page >= totalPages} onClick={() => setPage(totalPages)}>
+          <ChevronsRight className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }
@@ -100,6 +152,8 @@ function DashboardPage() {
   const [closedIds, setClosedIds] = useState<string[]>([]);
   const [forceCloseTarget, setForceCloseTarget] = useState<string | null>(null);
   const [forceReason, setForceReason] = useState("");
+  const [searchManpower, setSearchManpower] = useState("");
+  const [searchCabin, setSearchCabin] = useState("");
 
   const filtered = useMemo(
     () =>
@@ -124,12 +178,10 @@ function DashboardPage() {
   );
   const avgToday =
     completedToday.length > 0
-      ? completedToday.reduce((a, s) => a + (s.durationSeconds ?? 0), 0) /
-        completedToday.length
+      ? completedToday.reduce((a, s) => a + (s.durationSeconds ?? 0), 0) / completedToday.length
       : 0;
   const activeManpower = new Set(todaySessions.map((s) => s.manpowerId)).size;
 
-  // Data tren N hari
   const trend = useMemo(() => {
     const days = Number(range);
     const out: Array<{ date: string; selesai: number; rataRata: number | null }> = [];
@@ -150,7 +202,6 @@ function DashboardPage() {
     return out;
   }, [filtered, range]);
 
-  // Summary per manpower
   const manpowerSummary = useMemo(() => {
     const done = filtered.filter((s) => s.status === "completed");
     return manpower
@@ -158,19 +209,15 @@ function DashboardPage() {
         const mine = done.filter((s) => s.manpowerId === m.id);
         const total = mine.reduce((a, s) => a + (s.durationSeconds ?? 0), 0);
         return {
-          id: m.id,
-          name: m.name,
-          nik: m.nik,
+          id: m.id, name: m.name, nik: m.nik,
           cabinCount: new Set(mine.map((s) => s.cabinId)).size,
-          totalDuration: total,
-          avg: mine.length ? total / mine.length : 0,
+          totalDuration: total, avg: mine.length ? total / mine.length : 0,
         };
       })
       .filter((r) => r.cabinCount > 0)
       .sort((a, b) => b.cabinCount - a.cabinCount);
   }, [filtered]);
 
-  // Summary per cabin
   const cabinSummary = useMemo(() => {
     const avgDuration =
       filtered.filter((s) => s.durationSeconds).reduce((a, s) => a + (s.durationSeconds ?? 0), 0) /
@@ -183,12 +230,8 @@ function DashboardPage() {
         const last = [...mine].sort((a, b) => b.startTime.getTime() - a.startTime.getTime())[0];
         if (!last) return null;
         return {
-          id: c.id,
-          tagCode: c.tagCode,
-          model: c.model,
-          sessions: mine.length,
-          totalDuration: total,
-          status: last.status,
+          id: c.id, tagCode: c.tagCode, model: c.model,
+          sessions: mine.length, totalDuration: total, status: last.status,
           aboveAvg: mine.some((s) => (s.durationSeconds ?? 0) > avgDuration * 1.5),
         };
       })
@@ -196,7 +239,6 @@ function DashboardPage() {
       .sort((a, b) => b.totalDuration - a.totalDuration);
   }, [filtered]);
 
-  // Rata-rata durasi per model
   const modelChart = useMemo(
     () =>
       CABIN_MODELS.map((model) => {
@@ -205,8 +247,7 @@ function DashboardPage() {
           (s) => ids.includes(s.cabinId) && s.durationSeconds,
         );
         const avg =
-          sessions.reduce((a, s) => a + (s.durationSeconds ?? 0), 0) /
-          Math.max(1, sessions.length);
+          sessions.reduce((a, s) => a + (s.durationSeconds ?? 0), 0) / Math.max(1, sessions.length);
         return { model: model.replace("Cabin ", ""), menit: Math.round(avg / 60) };
       }),
     [filtered],
@@ -220,18 +261,29 @@ function DashboardPage() {
     { label: "Sesi Menggantung", value: hanging.length, icon: AlertTriangle, tone: "text-amber-600 bg-amber-50" },
   ];
 
+  const filteredManpowerSummary = manpowerSummary.filter(r => {
+    const q = searchManpower.toLowerCase();
+    return !q || r.name.toLowerCase().includes(q) || r.nik.toLowerCase().includes(q);
+  });
+
+  const filteredCabinSummary = cabinSummary.filter(r => {
+    const q = searchCabin.toLowerCase();
+    return !q || r.tagCode.toLowerCase().includes(q) || r.model.toLowerCase().includes(q);
+  });
+
+  const mpPag = usePagination(filteredManpowerSummary);
+  const cbPag = usePagination(filteredCabinSummary);
+
   const target = forceCloseTarget ? workSessions.find((s) => s.id === forceCloseTarget) : null;
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
+    <div className="p-4 md:p-6 lg:p-8 bg-slate-50/50 min-h-screen">
       <PageHeader
         title="Dashboard"
         description="Monitoring real-time pengerjaan perbaikan cabin berdasarkan data scan RFID/barcode."
         actions={
           <Select value={range} onValueChange={setRange}>
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
+            <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="7">7 Hari Terakhir</SelectItem>
               <SelectItem value="14">14 Hari Terakhir</SelectItem>
@@ -275,42 +327,13 @@ function DashboardPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
               <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
-              <Tooltip
-                contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }}
-              />
+              <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }} />
               <Area type="monotone" dataKey="selesai" name="Cabin selesai" stroke="var(--primary)" fill="url(#gradSelesai)" strokeWidth={2} />
               <Area type="monotone" dataKey="rataRata" name="Rata-rata bergerak" stroke="var(--chart-2)" strokeDasharray="5 4" fill="none" strokeWidth={1.5} />
             </AreaChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
-
-      {/* Filter */}
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <Select value={fManpower} onValueChange={setFManpower}>
-          <SelectTrigger className="w-44"><SelectValue placeholder="Semua Manpower" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua Manpower</SelectItem>
-            {manpower.filter((m) => m.isActive).map((m) => (
-              <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={fModel} onValueChange={setFModel}>
-          <SelectTrigger className="w-44"><SelectValue placeholder="Semua Model" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua Model</SelectItem>
-            {CABIN_MODELS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={fLine} onValueChange={setFLine}>
-          <SelectTrigger className="w-40"><SelectValue placeholder="Semua Line" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua Line</SelectItem>
-            {LINE_STATIONS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-          </SelectContent>
-        </Select>
-      </div>
 
       {/* Sesi menggantung */}
       {hanging.length > 0 && (
@@ -342,35 +365,62 @@ function DashboardPage() {
 
       {/* Summary manpower & cabin */}
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
+        <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white">
+          <CardHeader className="pb-0 pt-4 px-4">
             <CardTitle className="text-sm font-semibold">Summary per Manpower</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <THead>
-                <Tr>
-                  <Th column="name" sortable>Nama</Th>
-                  <Th column="cabin" sortable>Cabin</Th>
-                  <Th column="total" sortable>Total Durasi</Th>
-                  <Th column="avg" sortable>Rata-rata</Th>
-                </Tr>
-              </THead>
-              <TBody>
-                {manpowerSummary.map((r) => (
-                  <Tr key={r.id}>
-                    <Td>
-                      <p className="font-medium">{r.name}</p>
-                      <p className="text-xs text-muted-foreground">{r.nik}</p>
-                    </Td>
-                    <Td><InlineBar value={r.cabinCount} max={manpowerSummary[0]?.cabinCount ?? 1} /></Td>
-                    <Td>{fmtDuration(r.totalDuration)}</Td>
-                    <Td>{fmtDuration(Math.round(r.avg))}</Td>
-                  </Tr>
+          <div className="p-4 flex flex-wrap items-center gap-3 border-b border-slate-100">
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+              <Input placeholder="Search by name or NIK" className="pl-9 h-9 text-sm bg-white border-slate-200" value={searchManpower} onChange={(e) => setSearchManpower(e.target.value)} />
+            </div>
+            <Select value={fManpower} onValueChange={setFManpower}>
+              <SelectTrigger className="w-[160px] h-9 text-sm text-slate-500 bg-white"><SelectValue placeholder="All Manpower" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Manpower</SelectItem>
+                {manpower.filter((m) => m.isActive).map((m) => (
+                  <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
                 ))}
-              </TBody>
-            </Table>
-          </CardContent>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left whitespace-nowrap">
+              <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-3.5 text-center w-[120px]">ACTION</th>
+                  <th className="px-6 py-3.5">NAME</th>
+                  <th className="px-6 py-3.5">CABIN COUNT</th>
+                  <th className="px-6 py-3.5">TOTAL DURATION</th>
+                  <th className="px-6 py-3.5">AVERAGE</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {mpPag.paged.map((r) => (
+                  <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-3">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Eye className="h-4 w-4" /></button>
+                        <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Pencil className="h-4 w-4" /></button>
+                        <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Trash2 className="h-4 w-4" /></button>
+                      </div>
+                    </td>
+                    <td className="px-6 py-3">
+                      <div><span className="font-semibold text-slate-700">{r.name}</span></div>
+                      <div className="text-[11px] text-slate-400">{r.nik}</div>
+                    </td>
+                    <td className="px-6 py-3 text-slate-600">{r.cabinCount}</td>
+                    <td className="px-6 py-3 text-slate-600">{fmtDuration(r.totalDuration)}</td>
+                    <td className="px-6 py-3 text-slate-600">{fmtDuration(Math.round(r.avg))}</td>
+                  </tr>
+                ))}
+                {filteredManpowerSummary.length === 0 && (
+                  <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">No data found</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <PaginationFooter page={mpPag.page} setPage={mpPag.setPage} perPage={mpPag.perPage} setPerPage={mpPag.setPerPage} totalPages={mpPag.totalPages} total={mpPag.total} showing={mpPag.paged.length} />
         </Card>
 
         <Card>
@@ -391,45 +441,73 @@ function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="mt-4">
-        <CardHeader className="pb-2">
+      <Card className="mt-4 rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white">
+        <CardHeader className="pb-0 pt-4 px-4">
           <CardTitle className="text-sm font-semibold">Summary per Cabin</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <THead>
-              <Tr>
-                <Th column="tag" sortable>Cabin</Th>
-                <Th column="model" sortable>Model</Th>
-                <Th column="sesi" sortable>Jumlah Sesi</Th>
-                <Th column="durasi" sortable>Total Durasi</Th>
-                <Th>Status Terakhir</Th>
-              </Tr>
-            </THead>
-            <TBody>
-              {cabinSummary.slice(0, 12).map((r) => (
-                <Tr key={r.id}>
-                    <Td className="font-medium">
-                      {r.tagCode}
-                      {r.aboveAvg && (
-                        <Badge variant="outline" className="ml-2 border-amber-300 bg-amber-50 text-amber-700">
-                          Di atas rata-rata
-                        </Badge>
-                      )}
-                    </Td>
-                  <Td>{r.model}</Td>
-                  <Td><InlineBar value={r.sessions} max={cabinSummary[0]?.sessions ?? 1} /></Td>
-                  <Td>{fmtDuration(r.totalDuration)}</Td>
-                  <Td>
-                    <Badge variant="outline" className={STATUS_BADGE[r.status]}>
-                      {STATUS_LABEL[r.status]}
-                    </Badge>
-                  </Td>
-                </Tr>
+        <div className="p-4 flex flex-wrap items-center gap-3 border-b border-slate-100">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Input placeholder="Search by tag code or model" className="pl-9 h-9 text-sm bg-white border-slate-200" value={searchCabin} onChange={(e) => setSearchCabin(e.target.value)} />
+          </div>
+          <Select value={fModel} onValueChange={setFModel}>
+            <SelectTrigger className="w-[160px] h-9 text-sm text-slate-500 bg-white"><SelectValue placeholder="All Model" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Model</SelectItem>
+              {CABIN_MODELS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={fLine} onValueChange={setFLine}>
+            <SelectTrigger className="w-[140px] h-9 text-sm text-slate-500 bg-white"><SelectValue placeholder="All Line" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Line</SelectItem>
+              {LINE_STATIONS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left whitespace-nowrap">
+            <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-3.5 text-center w-[120px]">ACTION</th>
+                <th className="px-6 py-3.5">CABIN</th>
+                <th className="px-6 py-3.5">MODEL</th>
+                <th className="px-6 py-3.5">SESSIONS</th>
+                <th className="px-6 py-3.5">TOTAL DURATION</th>
+                <th className="px-6 py-3.5">LAST STATUS</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {cbPag.paged.map((r) => (
+                <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-6 py-3">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Eye className="h-4 w-4" /></button>
+                      <button className="p-1.5 text-slate-400 hover:text-[#285BB2] hover:bg-blue-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Pencil className="h-4 w-4" /></button>
+                      <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors border border-slate-200 shadow-sm bg-white"><Trash2 className="h-4 w-4" /></button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-3">
+                    <span className="font-semibold text-slate-700">{r.tagCode}</span>
+                    {r.aboveAvg && (
+                      <Badge variant="outline" className="ml-2 border-amber-300 bg-amber-50 text-amber-700">Di atas rata-rata</Badge>
+                    )}
+                  </td>
+                  <td className="px-6 py-3 text-slate-600">{r.model}</td>
+                  <td className="px-6 py-3 text-slate-600">{r.sessions}</td>
+                  <td className="px-6 py-3 text-slate-600">{fmtDuration(r.totalDuration)}</td>
+                  <td className="px-6 py-3">
+                    <Badge variant="outline" className={STATUS_BADGE[r.status]}>{STATUS_LABEL[r.status]}</Badge>
+                  </td>
+                </tr>
               ))}
-            </TBody>
-          </Table>
-        </CardContent>
+              {filteredCabinSummary.length === 0 && (
+                <tr><td colSpan={6} className="px-6 py-8 text-center text-slate-400">No data found</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <PaginationFooter page={cbPag.page} setPage={cbPag.setPage} perPage={cbPag.perPage} setPerPage={cbPag.setPerPage} totalPages={cbPag.totalPages} total={cbPag.total} showing={cbPag.paged.length} />
       </Card>
 
       {/* Dialog tutup paksa */}
