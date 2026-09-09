@@ -124,7 +124,7 @@ function MasterManpowerPage() {
 
       <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white">
         <div className="p-4 flex flex-wrap items-center gap-3 border-b border-slate-100">
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <div className="relative flex-1 min-w-[200px] w-full">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Search by name or NIK"
