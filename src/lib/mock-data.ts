@@ -30,8 +30,8 @@ export interface WorkSession {
   endTime: Date | null;
   durationSeconds: number | null;
   status: SessionStatus;
-  forceClosedBy?: string;
-  forceCloseReason?: string;
+  forceClosedBy?: string | undefined;
+  forceCloseReason?: string | undefined;
   createdOffline: boolean;
 }
 
@@ -69,7 +69,7 @@ function mulberry32(seed: number) {
   };
 }
 const rand = mulberry32(42);
-const pick = <T,>(arr: T[]): T => arr[Math.floor(rand() * arr.length)];
+const pick = <T,>(arr: T[]): T => arr[Math.floor(rand() * arr.length)]!;
 
 const NOW = new Date("2026-09-09T14:00:00+07:00");
 const DAY = 24 * 60 * 60 * 1000;
@@ -102,8 +102,8 @@ export const manpower: Manpower[] = MANPOWER_NAMES.map(([nik, name], i) => ({
 export const cabins: Cabin[] = Array.from({ length: 24 }, (_, i) => ({
   id: `cb-${i + 1}`,
   tagCode: `CBN-${String(i + 1).padStart(3, "0")}`,
-  model: CABIN_MODELS[i % 3],
-  lineStation: LINE_STATIONS[i % 3],
+  model: CABIN_MODELS[i % 3]!,
+  lineStation: LINE_STATIONS[i % 3]!,
   externalRefId: `EXT-CB-${1000 + i}`,
   lastSyncedAt: SYNC_TIME,
   isActive: i !== 23,

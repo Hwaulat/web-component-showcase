@@ -109,7 +109,9 @@ export function AppTabs({
     variants[variant];
 
   const controlledProps =
-    value !== undefined ? { value, onValueChange } : undefined;
+    value !== undefined
+      ? { value, ...(onValueChange ? { onValueChange } : {}) }
+      : undefined;
   const uncontrolledProps =
     value === undefined
       ? (() => {

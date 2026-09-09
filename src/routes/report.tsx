@@ -116,7 +116,7 @@ function ReportPage() {
       map.set(key, [...(map.get(key) ?? []), s]);
     }
     return [...map.entries()]
-      .sort((a, b) => b[1][0].startTime.getTime() - a[1][0].startTime.getTime())
+      .sort((a, b) => (b[1][0]?.startTime.getTime() ?? 0) - (a[1][0]?.startTime.getTime() ?? 0))
       .map(([date, list]) => ({
         date,
         selesai: list.filter((s) => s.status === "completed").length,

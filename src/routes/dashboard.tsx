@@ -181,6 +181,7 @@ function DashboardPage() {
         if (!mine.length) return null;
         const total = mine.reduce((a, s) => a + (s.durationSeconds ?? 0), 0);
         const last = [...mine].sort((a, b) => b.startTime.getTime() - a.startTime.getTime())[0];
+        if (!last) return null;
         return {
           id: c.id,
           tagCode: c.tagCode,
