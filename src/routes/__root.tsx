@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppSidebar } from "../components/app-sidebar";
+import { AppHeader } from "../components/app-header";
 import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
@@ -122,9 +123,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppSidebar />
-      <div className="min-h-screen md:pl-60">
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+      <div className="flex min-h-screen flex-col md:pl-64">
+        <AppHeader />
+        <main className="flex-1">
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </main>
       </div>
       <Toaster />
     </QueryClientProvider>
