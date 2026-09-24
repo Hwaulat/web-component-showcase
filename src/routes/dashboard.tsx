@@ -12,6 +12,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  RefreshCw,
 } from "lucide-react";
 import {
   Area,
@@ -25,6 +26,8 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Line,
+  LineChart,
 } from "recharts";
 import { toast } from "sonner";
 
@@ -145,7 +148,8 @@ function DashboardPage() {
   const [forceReason, setForceReason] = useState("");
   const [searchManpower, setSearchManpower] = useState("");
   const [searchCabin, setSearchCabin] = useState("");
-  const [summaryTab, setSummaryTab] = useState<"manpower" | "cabin">("manpower");
+  const [summaryTab, setSummaryTab] = useState<"manpower" | "cabin" | "dolly">("manpower");
+  const [targetPutaran, setTargetPutaran] = useState("4");
 
   const filtered = useMemo(
     () =>
@@ -231,6 +235,8 @@ function DashboardPage() {
       .sort((a, b) => b.totalDuration - a.totalDuration);
   }, [filtered]);
 
+
+
   const modelChart = useMemo(
     () =>
       CABIN_MODELS.map((model) => {
@@ -245,12 +251,49 @@ function DashboardPage() {
     [filtered],
   );
 
+  const dollySummary = useMemo(() => {
+    return LINE_STATIONS.map((line) => {
+      const lineCabinIds = cabins.filter((c) => c.lineStation === line).map((c) => c.id);
+      const lineCompleted = filtered.filter(
+        (s) => s.status === "completed" && lineCabinIds.includes(s.cabinId),
+      );
+      const lineActive = filtered.filter(
+        (s) => s.status === "in_progress" && lineCabinIds.includes(s.cabinId),
+      );
+      return {
+        line,
+        putaran: lineCompleted.length,
+        active: lineActive.length,
+      };
+    });
+  }, [filtered]);
+
+  const dollyTrend = useMemo(() => {
+    const days = Number(range);
+    const out: Array<{ date: string; longDate: string; total: number }> = [];
+    for (let d = days - 1; d >= 0; d--) {
+      const day = new Date(NOW_REF.getTime() - d * 86400_000);
+      const count = filtered.filter(
+        (s) => s.status === "completed" && s.endTime && isSameDay(s.endTime, day),
+      ).length;
+      out.push({
+        date: fmtDate(day),
+        longDate: day.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
+        total: count,
+      });
+    }
+    return out;
+  }, [filtered, range]);
+
+  const totalPutaran = dollySummary.reduce((acc, curr) => acc + curr.putaran, 0);
+
   const kpis = [
     { label: "Cabins Repaired Today", value: completedToday.length, icon: CheckCircle2, tone: "text-emerald-600 bg-emerald-50" },
     { label: "Sedang Dikerjakan", value: inProgress.length, icon: Loader, tone: "text-blue-600 bg-blue-50" },
     { label: "Rata-rata Durasi / Cabin", value: fmtDuration(Math.round(avgToday)), icon: Timer, tone: "text-violet-600 bg-violet-50" },
     { label: "Active Manpower Today", value: activeManpower, icon: Users, tone: "text-cyan-600 bg-cyan-50" },
     { label: "Pending Sessions", value: hanging.length, icon: AlertTriangle, tone: "text-amber-600 bg-amber-50" },
+    { label: "Total Dolly Rotation", value: totalPutaran, icon: RefreshCw, tone: "text-indigo-600 bg-indigo-50" },
   ];
 
   const filteredManpowerSummary = manpowerSummary.filter(r => {
@@ -265,6 +308,7 @@ function DashboardPage() {
 
   const mpPag = usePagination(filteredManpowerSummary);
   const cbPag = usePagination(filteredCabinSummary);
+  const dlPag = usePagination(dollyTrend);
 
   const target = forceCloseTarget ? workSessions.find((s) => s.id === forceCloseTarget) : null;
 
@@ -286,7 +330,7 @@ function DashboardPage() {
       />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         {kpis.map((k) => (
           <Card key={k.label}>
             <CardContent className="flex items-start gap-3 p-4">
@@ -301,6 +345,8 @@ function DashboardPage() {
           </Card>
         ))}
       </div>
+
+
 
       {/* Charts: Tren (Area) + Durasi per Model (Pie) side by side */}
       <div className="mt-4 flex flex-col xl:flex-row gap-4">
@@ -358,6 +404,37 @@ function DashboardPage() {
         </Card>
       </div>
 
+      {/* Dolly Rotation Line Chart */}
+      <Card className="mt-4">
+        <CardHeader className="pb-2 flex flex-row items-center justify-between">
+          <CardTitle className="text-sm font-semibold mt-1">Overview Dolly Rotation</CardTitle>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">Standard Rotation:</span>
+            <div className="flex items-center gap-1">
+              <Input
+                type="number"
+                value={targetPutaran}
+                onChange={(e) => setTargetPutaran(e.target.value)}
+                className="w-20 h-8 text-xs"
+                placeholder="Total"
+              />
+              <Button size="sm" className="h-8 text-xs" onClick={() => toast.success("Standard Rotation diperbarui.")}>Update</Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={dollyTrend} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" label={{ value: 'Total', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'var(--muted-foreground)', fontSize: 12 } }} />
+              <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }} />
+              <Line type="monotone" dataKey="total" name="Total Putaran" stroke="var(--primary)" strokeWidth={2} dot={{ r: 4, fill: "var(--primary)" }} activeDot={{ r: 6 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
       {/* Combined Summary Table with Pill Tabs */}
       <Card className="mt-4 rounded-xl border-slate-200 shadow-sm overflow-hidden bg-white dark:bg-slate-900">
         <div className="p-4 flex flex-wrap items-center gap-4 border-b border-slate-100">
@@ -381,18 +458,29 @@ function DashboardPage() {
             >
               Cabin Summary
             </button>
+            <button
+              onClick={() => setSummaryTab("dolly")}
+              className={cn(
+                "px-5 py-2 text-sm font-semibold rounded-full transition-colors",
+                summaryTab === "dolly" ? "bg-white dark:bg-slate-900 text-[#285BB2] shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
+              )}
+            >
+              Dolly Rotation Summary
+            </button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 flex-1">
-            <div className="relative flex-1 min-w-[200px] max-w-sm">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder={summaryTab === "manpower" ? "Search by name or NIK" : "Search by tag code or model"}
-                className="pl-9 h-9 text-sm bg-white dark:bg-slate-900 border-slate-200"
-                value={summaryTab === "manpower" ? searchManpower : searchCabin}
-                onChange={(e) => summaryTab === "manpower" ? setSearchManpower(e.target.value) : setSearchCabin(e.target.value)}
-              />
-            </div>
+          <div className="flex flex-wrap items-center gap-3 flex-1 w-full">
+            {summaryTab !== "dolly" && (
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder={summaryTab === "manpower" ? "Search by name or NIK" : "Search by tag code or model"}
+                  className="pl-9 h-9 text-sm bg-white dark:bg-slate-900 border-slate-200 w-full"
+                  value={summaryTab === "manpower" ? searchManpower : searchCabin}
+                  onChange={(e) => summaryTab === "manpower" ? setSearchManpower(e.target.value) : setSearchCabin(e.target.value)}
+                />
+              </div>
+            )}
             {summaryTab === "manpower" && (
               <Select value={fManpower} onValueChange={setFManpower}>
                 <SelectTrigger className="w-[160px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900"><SelectValue placeholder="All Manpower" /></SelectTrigger>
@@ -498,6 +586,42 @@ function DashboardPage() {
               </table>
             </div>
             <PaginationFooter page={cbPag.page} setPage={cbPag.setPage} perPage={cbPag.perPage} setPerPage={cbPag.setPerPage} totalPages={cbPag.totalPages} total={cbPag.total} showing={cbPag.paged.length} />
+          </>
+        )}
+
+        {/* Dolly Tab */}
+        {summaryTab === "dolly" && (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left whitespace-nowrap">
+                <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                  <tr>
+                    <th className="px-6 py-3.5">DATE</th>
+                    <th className="px-6 py-3.5">TOTAL ROTATION</th>
+                    <th className="px-6 py-3.5">STATUS</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {dlPag.paged.map((r) => (
+                    <tr key={r.date} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="px-6 py-3 font-semibold text-slate-700">{r.longDate}</td>
+                      <td className="px-6 py-3 text-slate-600">{r.total}</td>
+                      <td className="px-6 py-3 text-slate-600">
+                        {r.total > Number(targetPutaran || 0) ? (
+                          <Badge variant="outline" className="border-rose-300 bg-rose-50 text-rose-700">Over Rotation</Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-700">Normal</Badge>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {dollyTrend.length === 0 && (
+                    <tr><td colSpan={3} className="px-6 py-8 text-center text-slate-400">No data found</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <PaginationFooter page={dlPag.page} setPage={dlPag.setPage} perPage={dlPag.perPage} setPerPage={dlPag.setPerPage} totalPages={dlPag.totalPages} total={dlPag.total} showing={dlPag.paged.length} />
           </>
         )}
       </Card>

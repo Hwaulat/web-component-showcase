@@ -18,7 +18,7 @@ export function AppSidebar({ className, isOpen = true }: { className?: string, i
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 flex-col bg-[#0B1527] text-slate-300 md:flex shadow-xl transition-transform duration-300",
+        "fixed inset-y-0 left-0 z-40 w-64 flex-col bg-slate-900 text-slate-300 md:flex shadow-xl transition-transform duration-300",
         isOpen ? "translate-x-0" : "-translate-x-full",
         className
       )}
