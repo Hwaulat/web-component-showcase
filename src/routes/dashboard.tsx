@@ -148,6 +148,8 @@ function DashboardPage() {
   const [forceReason, setForceReason] = useState("");
   const [searchManpower, setSearchManpower] = useState("");
   const [searchCabin, setSearchCabin] = useState("");
+  const [searchDolly, setSearchDolly] = useState("");
+  const [fDollyStatus, setFDollyStatus] = useState("all");
   const [summaryTab, setSummaryTab] = useState<"manpower" | "cabin" | "dolly">("manpower");
   const [targetPutaran, setTargetPutaran] = useState("4");
 
@@ -270,7 +272,8 @@ function DashboardPage() {
 
   const dollyTrend = useMemo(() => {
     const days = Number(range);
-    const out: Array<{ date: string; longDate: string; totalDolly: number; total: number }> = [];
+    const out: Array<{ date: string; longDate: string; dollyNumber: string; total: number }> = [];
+    let dollyIdx = 1;
     for (let d = days - 1; d >= 0; d--) {
       const day = new Date(NOW_REF.getTime() - d * 86400_000);
       const dayCompleted = filtered.filter(
@@ -282,7 +285,7 @@ function DashboardPage() {
       out.push({
         date: fmtDate(day),
         longDate: day.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }),
-        totalDolly: new Set(dayActive.map(s => s.cabinId)).size,
+        dollyNumber: String(dollyIdx++).padStart(3, "0"),
         total: dayCompleted.length,
       });
     }
@@ -310,9 +313,19 @@ function DashboardPage() {
     return !q || r.tagCode.toLowerCase().includes(q) || r.model.toLowerCase().includes(q);
   });
 
+  const filteredDollyTrend = dollyTrend.filter(r => {
+    if (searchDolly && !r.dollyNumber.includes(searchDolly)) return false;
+    
+    const isOver = r.total > Number(targetPutaran || 0);
+    if (fDollyStatus === "normal" && isOver) return false;
+    if (fDollyStatus === "over" && !isOver) return false;
+    
+    return true;
+  });
+
   const mpPag = usePagination(filteredManpowerSummary);
   const cbPag = usePagination(filteredCabinSummary);
-  const dlPag = usePagination(dollyTrend);
+  const dlPag = usePagination(filteredDollyTrend);
 
   const target = forceCloseTarget ? workSessions.find((s) => s.id === forceCloseTarget) : null;
 
@@ -474,17 +487,19 @@ function DashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 flex-1 w-full">
-            {summaryTab !== "dolly" && (
-              <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                <Input
-                  placeholder={summaryTab === "manpower" ? "Search by name or NIK" : "Search by tag code or model"}
-                  className="pl-9 h-9 text-sm bg-white dark:bg-slate-900 border-slate-200 w-full"
-                  value={summaryTab === "manpower" ? searchManpower : searchCabin}
-                  onChange={(e) => summaryTab === "manpower" ? setSearchManpower(e.target.value) : setSearchCabin(e.target.value)}
-                />
-              </div>
-            )}
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder={summaryTab === "manpower" ? "Search by name or NIK" : summaryTab === "cabin" ? "Search by tag code or model" : "Search by dolly number"}
+                className="pl-9 h-9 text-sm bg-white dark:bg-slate-900 border-slate-200 w-full"
+                value={summaryTab === "manpower" ? searchManpower : summaryTab === "cabin" ? searchCabin : searchDolly}
+                onChange={(e) => {
+                  if (summaryTab === "manpower") setSearchManpower(e.target.value);
+                  else if (summaryTab === "cabin") setSearchCabin(e.target.value);
+                  else setSearchDolly(e.target.value);
+                }}
+              />
+            </div>
             {summaryTab === "manpower" && (
               <Select value={fManpower} onValueChange={setFManpower}>
                 <SelectTrigger className="w-[160px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900"><SelectValue placeholder="All Manpower" /></SelectTrigger>
@@ -513,6 +528,16 @@ function DashboardPage() {
                   </SelectContent>
                 </Select>
               </>
+            )}
+            {summaryTab === "dolly" && (
+              <Select value={fDollyStatus} onValueChange={setFDollyStatus}>
+                <SelectTrigger className="w-[160px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900"><SelectValue placeholder="All Status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="over">Over Rotation</SelectItem>
+                </SelectContent>
+              </Select>
             )}
           </div>
         </div>
@@ -601,7 +626,7 @@ function DashboardPage() {
                 <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
                   <tr>
                     <th className="px-6 py-3.5">DATE</th>
-                    <th className="px-6 py-3.5">TOTAL DOLLY</th>
+                    <th className="px-6 py-3.5">DOLLY NUMBER</th>
                     <th className="px-6 py-3.5">TOTAL ROTATION</th>
                     <th className="px-6 py-3.5">STATUS</th>
                   </tr>
@@ -610,7 +635,7 @@ function DashboardPage() {
                   {dlPag.paged.map((r) => (
                     <tr key={r.date} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-3 font-semibold text-slate-700">{r.longDate}</td>
-                      <td className="px-6 py-3 text-slate-600">{r.totalDolly}</td>
+                      <td className="px-6 py-3 text-slate-600">{r.dollyNumber}</td>
                       <td className="px-6 py-3 text-slate-600">{r.total}</td>
                       <td className="px-6 py-3 text-slate-600">
                         {r.total > Number(targetPutaran || 0) ? (
@@ -621,7 +646,7 @@ function DashboardPage() {
                       </td>
                     </tr>
                   ))}
-                  {dollyTrend.length === 0 && (
+                  {filteredDollyTrend.length === 0 && (
                     <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">No data found</td></tr>
                   )}
                 </tbody>
