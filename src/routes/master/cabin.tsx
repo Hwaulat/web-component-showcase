@@ -189,16 +189,16 @@ function MasterCabinPage() {
                   <td className="px-6 py-3 text-slate-600">{c.externalRefId}</td>
                   <td className="px-6 py-3">
                     {c.isActive ? (
-                      <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">Aktif</Badge>
+                      <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">Active</Badge>
                     ) : (
-                      <Badge variant="outline" className="border-gray-300 bg-gray-50 text-gray-500">Nonaktif</Badge>
+                      <Badge variant="outline" className="border-gray-300 bg-gray-50 text-gray-500">Inactive</Badge>
                     )}
                   </td>
                   <td className="px-6 py-3 text-slate-400">{fmtDateTime(c.lastSyncedAt)}</td>
                 </tr>
               ))}
               {rows.length === 0 && (
-                <tr><td colSpan={7} className="px-6 py-8 text-center text-slate-400">Tidak ada cabin yang cocok dengan filter.</td></tr>
+                <tr><td colSpan={7} className="px-6 py-8 text-center text-slate-400">No cabin matched the filter.</td></tr>
               )}
             </tbody>
           </table>

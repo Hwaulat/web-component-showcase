@@ -95,13 +95,14 @@ function PaginationFooter({ page, setPage, perPage, setPerPage, totalPages, tota
   );
 }
 
-type ReportType = "harian" | "manpower" | "cabin" | "hanging";
+type ReportType = "daily" | "manpower" | "cabin" | "hanging";
 
 function ReportPage() {
   const [range, setRange] = useState("7");
   const [fManpower, setFManpower] = useState("all");
   const [fModel, setFModel] = useState("all");
-  const [activeReport, setActiveReport] = useState<ReportType>("harian");
+  const [fStatus, setFStatus] = useState("all");
+  const [activeReport, setActiveReport] = useState<ReportType>("daily");
   const [searchQuery, setSearchQuery] = useState("");
 
   const sessions = useMemo(() => {
@@ -111,14 +112,15 @@ function ReportPage() {
       const cabin = cabinById(s.cabinId);
       if (fManpower !== "all" && s.manpowerId !== fManpower) return false;
       if (fModel !== "all" && cabin?.model !== fModel) return false;
+      if (fStatus !== "all" && s.status !== fStatus) return false;
       return true;
     });
-  }, [range, fManpower, fModel]);
+  }, [range, fManpower, fModel, fStatus]);
 
   const doExport = (kind: "PDF" | "Excel") =>
-    toast.success(`Laporan diekspor sebagai ${kind} (simulasi).`);
+    toast.success(`Report exported as ${kind} (simulation).`);
 
-  // --- Report 1: Harian ---
+  // --- Report 1: Daily ---
   const dailyRows = useMemo(() => {
     const map = new Map<string, typeof sessions>();
     for (const s of sessions) {
@@ -129,7 +131,7 @@ function ReportPage() {
       .sort((a, b) => (b[1][0]?.startTime.getTime() ?? 0) - (a[1][0]?.startTime.getTime() ?? 0))
       .map(([date, list]) => ({
         date,
-        selesai: list.filter((s) => s.status === "completed").length,
+        completed: list.filter((s) => s.status === "completed").length,
         manpower: new Set(list.map((s) => s.manpowerId)).size,
         total: list.reduce((a, s) => a + (s.durationSeconds ?? 0), 0),
       }));
@@ -162,7 +164,7 @@ function ReportPage() {
     return [...map.entries()]
       .map(([cabinId, v]) => {
         const c = cabinById(cabinId)!;
-        return { tag: c.tagCode, model: c.model, ...v, avg: v.total / v.count, wajar: v.total <= globalAvg * 1.5 };
+        return { tag: c.tagCode, model: c.model, ...v, avg: v.total / v.count, isNormal: v.total <= globalAvg * 1.5 };
       })
       .sort((a, b) => b.total - a.total);
   }, [sessions]);
@@ -178,7 +180,7 @@ function ReportPage() {
   const hangPag = usePagination(hangingRows);
 
   const tabs: { value: ReportType; label: string }[] = [
-    { value: "harian", label: "Daily Report" },
+    { value: "daily", label: "Daily Report" },
     { value: "manpower", label: "Manpower Productivity" },
     { value: "cabin", label: "Duration per Cabin/Model" },
     { value: "hanging", label: "Pending Sessions" },
@@ -188,7 +190,7 @@ function ReportPage() {
     <div className="p-4 md:p-6 lg:p-8 bg-slate-50/50 min-h-screen">
       <PageHeader
         title="Report"
-        description="Report builder — pilih jenis laporan, atur parameter, preview, lalu ekspor."
+        description="Report builder — select report type, set parameters, preview, then export."
       />
 
       {/* Tabs */}
@@ -238,6 +240,15 @@ function ReportPage() {
               {CABIN_MODELS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Select value={fStatus} onValueChange={setFStatus}>
+            <SelectTrigger className="w-[150px] h-9 text-sm text-slate-500 bg-white dark:bg-slate-900"><SelectValue placeholder="All Status" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              {Object.entries(STATUS_LABEL).map(([key, label]) => (
+                <SelectItem key={key} value={key}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <div className="flex gap-2 ml-auto">
             <Button variant="outline" onClick={() => doExport("PDF")} className="h-9 bg-orange-500 hover:bg-orange-600 text-white border-orange-500">
               <FileText className="mr-1.5 h-4 w-4" /> Download Report
@@ -248,8 +259,8 @@ function ReportPage() {
           </div>
         </div>
 
-        {/* Harian */}
-        {activeReport === "harian" && (
+        {/* Daily */}
+        {activeReport === "daily" && (
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
@@ -266,7 +277,7 @@ function ReportPage() {
                     <tr key={r.date} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
 
                       <td className="px-6 py-3 font-semibold text-slate-700">{r.date}</td>
-                      <td className="px-6 py-3 text-slate-600">{r.selesai}</td>
+                      <td className="px-6 py-3 text-slate-600">{r.completed}</td>
                       <td className="px-6 py-3 text-slate-600">{r.manpower}</td>
                       <td className="px-6 py-3 text-slate-600">{fmtDuration(r.total)}</td>
                     </tr>
@@ -341,10 +352,10 @@ function ReportPage() {
                       <td className="px-6 py-3 text-slate-600">{fmtDuration(r.total)}</td>
                       <td className="px-6 py-3 text-slate-600">{fmtDuration(Math.round(r.avg))}</td>
                       <td className="px-6 py-3">
-                        {r.wajar ? (
-                          <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">Wajar</Badge>
+                        {r.isNormal ? (
+                          <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">Normal</Badge>
                         ) : (
-                          <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700">Perlu investigasi</Badge>
+                          <Badge variant="outline" className="border-red-200 bg-red-50 text-red-700">Needs investigation</Badge>
                         )}
                       </td>
                     </tr>
@@ -384,7 +395,7 @@ function ReportPage() {
                         <Badge variant="outline" className={STATUS_BADGE[s.status]}>{STATUS_LABEL[s.status]}</Badge>
                       </td>
                       <td className="px-6 py-3 text-slate-500 text-xs whitespace-normal max-w-[200px]">
-                        {s.status === "force_closed" ? `Ditutup paksa — ${s.forceCloseReason ?? "-"}` : "Menunggu tindakan supervisor"}
+                        {s.status === "force_closed" ? s.forceCloseReason : "Repair completed"}
                       </td>
                     </tr>
                   ))}

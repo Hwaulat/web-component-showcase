@@ -74,9 +74,9 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — CabinTrack" },
-      { name: "description", content: "Pantau cabin diperbaiki, sesi aktif, durasi rata-rata, dan produktivitas manpower secara real-time." },
+      { name: "description", content: "Monitor cabins being repaired, active sessions, average duration, and manpower productivity in real-time." },
       { property: "og:title", content: "Dashboard — CabinTrack" },
-      { property: "og:description", content: "Pantau cabin diperbaiki, sesi aktif, durasi rata-rata, dan produktivitas manpower secara real-time." },
+      { property: "og:description", content: "Monitor cabins being repaired, active sessions, average duration, and manpower productivity in real-time." },
     ],
   }),
   component: DashboardPage,
@@ -180,7 +180,7 @@ function DashboardPage() {
 
   const trend = useMemo(() => {
     const days = Number(range);
-    const out: Array<{ date: string; selesai: number; rataRata: number | null }> = [];
+    const out: Array<{ date: string; completed: number; average: number | null }> = [];
     const windowVals: number[] = [];
     for (let d = days - 1; d >= 0; d--) {
       const day = new Date(NOW_REF.getTime() - d * 86400_000);
@@ -191,8 +191,8 @@ function DashboardPage() {
       const w = windowVals.slice(-7);
       out.push({
         date: fmtDate(day),
-        selesai: count,
-        rataRata: Math.round((w.reduce((a, b) => a + b, 0) / w.length) * 10) / 10,
+        completed: count,
+        average: Math.round((w.reduce((a, b) => a + b, 0) / w.length) * 10) / 10,
       });
     }
     return out;
@@ -270,16 +270,20 @@ function DashboardPage() {
 
   const dollyTrend = useMemo(() => {
     const days = Number(range);
-    const out: Array<{ date: string; longDate: string; total: number }> = [];
+    const out: Array<{ date: string; longDate: string; totalDolly: number; total: number }> = [];
     for (let d = days - 1; d >= 0; d--) {
       const day = new Date(NOW_REF.getTime() - d * 86400_000);
-      const count = filtered.filter(
+      const dayCompleted = filtered.filter(
         (s) => s.status === "completed" && s.endTime && isSameDay(s.endTime, day),
-      ).length;
+      );
+      const dayActive = filtered.filter(
+        (s) => isSameDay(s.startTime, day) || (s.endTime && isSameDay(s.endTime, day))
+      );
       out.push({
         date: fmtDate(day),
-        longDate: day.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
-        total: count,
+        longDate: day.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }),
+        totalDolly: new Set(dayActive.map(s => s.cabinId)).size,
+        total: dayCompleted.length,
       });
     }
     return out;
@@ -289,8 +293,8 @@ function DashboardPage() {
 
   const kpis = [
     { label: "Cabins Repaired Today", value: completedToday.length, icon: CheckCircle2, tone: "text-emerald-600 bg-emerald-50" },
-    { label: "Sedang Dikerjakan", value: inProgress.length, icon: Loader, tone: "text-blue-600 bg-blue-50" },
-    { label: "Rata-rata Durasi / Cabin", value: fmtDuration(Math.round(avgToday)), icon: Timer, tone: "text-violet-600 bg-violet-50" },
+    { label: "Done", value: inProgress.length, icon: Loader, tone: "text-blue-600 bg-blue-50" },
+    { label: "Average Duration / Cabin", value: fmtDuration(Math.round(avgToday)), icon: Timer, tone: "text-violet-600 bg-violet-50" },
     { label: "Active Manpower Today", value: activeManpower, icon: Users, tone: "text-cyan-600 bg-cyan-50" },
     { label: "Pending Sessions", value: hanging.length, icon: AlertTriangle, tone: "text-amber-600 bg-amber-50" },
     { label: "Total Dolly Rotation", value: totalPutaran, icon: RefreshCw, tone: "text-indigo-600 bg-indigo-50" },
@@ -321,9 +325,9 @@ function DashboardPage() {
           <Select value={range} onValueChange={setRange}>
             <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="7">7 Hari Terakhir</SelectItem>
-              <SelectItem value="14">14 Hari Terakhir</SelectItem>
-              <SelectItem value="30">30 Hari Terakhir</SelectItem>
+              <SelectItem value="7">Last 7 Days</SelectItem>
+              <SelectItem value="14">Last 14 Days</SelectItem>
+              <SelectItem value="30">Last 30 Days</SelectItem>
             </SelectContent>
           </Select>
         }
@@ -358,7 +362,7 @@ function DashboardPage() {
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trend} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="gradSelesai" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="gradCompleted" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.25} />
                     <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                   </linearGradient>
@@ -367,8 +371,8 @@ function DashboardPage() {
                 <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
                 <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }} />
-                <Area type="monotone" dataKey="selesai" name="Completed cabins" stroke="var(--primary)" fill="url(#gradSelesai)" strokeWidth={2} />
-                <Area type="monotone" dataKey="rataRata" name="Rata-rata bergerak" stroke="var(--chart-2)" strokeDasharray="5 4" fill="none" strokeWidth={1.5} />
+                <Area type="monotone" dataKey="completed" name="Completed cabins" stroke="var(--primary)" fill="url(#gradCompleted)" strokeWidth={2} />
+                <Area type="monotone" dataKey="average" name="Moving Average" stroke="var(--chart-2)" strokeDasharray="5 4" fill="none" strokeWidth={1.5} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -396,7 +400,7 @@ function DashboardPage() {
                     <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }} formatter={(v: number) => `${v} menit`} />
+                <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }} formatter={(v: number) => `${v} mins`} />
                 <Legend verticalAlign="bottom" height={30} iconType="circle" />
               </PieChart>
             </ResponsiveContainer>
@@ -418,7 +422,7 @@ function DashboardPage() {
                 className="w-20 h-8 text-xs"
                 placeholder="Total"
               />
-              <Button size="sm" className="h-8 text-xs" onClick={() => toast.success("Standard Rotation diperbarui.")}>Update</Button>
+              <Button size="sm" className="h-8 text-xs" onClick={() => toast.success("Standard Rotation updated.")}>Update</Button>
             </div>
           </div>
         </CardHeader>
@@ -429,7 +433,7 @@ function DashboardPage() {
               <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
               <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" label={{ value: 'Total', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'var(--muted-foreground)', fontSize: 12 } }} />
               <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid var(--border)", fontSize: 12 }} />
-              <Line type="monotone" dataKey="total" name="Total Putaran" stroke="var(--primary)" strokeWidth={2} dot={{ r: 4, fill: "var(--primary)" }} activeDot={{ r: 6 }} />
+              <Line type="monotone" dataKey="total" name="Total Rotation" stroke="var(--primary)" strokeWidth={2} dot={{ r: 4, fill: "var(--primary)" }} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -568,7 +572,7 @@ function DashboardPage() {
                       <td className="px-6 py-3">
                         <span className="font-semibold text-slate-700">{r.tagCode}</span>
                         {r.aboveAvg && (
-                          <Badge variant="outline" className="ml-2 border-amber-300 bg-amber-50 text-amber-700">Di atas rata-rata</Badge>
+                          <Badge variant="outline" className="ml-2 border-amber-300 bg-amber-50 text-amber-700">Above average</Badge>
                         )}
                       </td>
                       <td className="px-6 py-3 text-slate-600">{r.model}</td>
@@ -597,6 +601,7 @@ function DashboardPage() {
                 <thead className="text-[11px] bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
                   <tr>
                     <th className="px-6 py-3.5">DATE</th>
+                    <th className="px-6 py-3.5">TOTAL DOLLY</th>
                     <th className="px-6 py-3.5">TOTAL ROTATION</th>
                     <th className="px-6 py-3.5">STATUS</th>
                   </tr>
@@ -605,6 +610,7 @@ function DashboardPage() {
                   {dlPag.paged.map((r) => (
                     <tr key={r.date} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-3 font-semibold text-slate-700">{r.longDate}</td>
+                      <td className="px-6 py-3 text-slate-600">{r.totalDolly}</td>
                       <td className="px-6 py-3 text-slate-600">{r.total}</td>
                       <td className="px-6 py-3 text-slate-600">
                         {r.total > Number(targetPutaran || 0) ? (
@@ -616,7 +622,7 @@ function DashboardPage() {
                     </tr>
                   ))}
                   {dollyTrend.length === 0 && (
-                    <tr><td colSpan={3} className="px-6 py-8 text-center text-slate-400">No data found</td></tr>
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">No data found</td></tr>
                   )}
                 </tbody>
               </table>
@@ -626,33 +632,33 @@ function DashboardPage() {
         )}
       </Card>
 
-      {/* Dialog tutup paksa */}
+      {/* Force close dialog */}
       <Dialog open={!!target} onOpenChange={(o) => !o && setForceCloseTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Tutup Paksa Sesi</DialogTitle>
+            <DialogTitle>NG Cabin Session</DialogTitle>
             <DialogDescription>
-              Sesi {target ? cabinById(target.cabinId)?.tagCode : ""} oleh{" "}
-              {target ? manpowerById(target.manpowerId)?.name : ""} akan ditutup paksa.
-              Alasan akan tercatat di audit log.
+              Session {target ? cabinById(target.cabinId)?.tagCode : ""} by{" "}
+              {target ? manpowerById(target.manpowerId)?.name : ""} will be marked as NG Cabin.
+              The reason will be recorded in the audit log.
             </DialogDescription>
           </DialogHeader>
           <Textarea
-            placeholder="Alasan force close, mis. teknisi lupa scan selesai saat pulang…"
+            placeholder="Reason for NG Cabin, e.g. Cabin moved to NG line..."
             value={forceReason}
             onChange={(e) => setForceReason(e.target.value)}
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setForceCloseTarget(null)}>Batal</Button>
+            <Button variant="outline" onClick={() => setForceCloseTarget(null)}>Cancel</Button>
             <Button
               disabled={forceReason.trim().length < 5}
               onClick={() => {
                 if (target) setClosedIds((p) => [...p, target.id]);
                 setForceCloseTarget(null);
-                toast.success("Sesi ditutup paksa dan tercatat di audit log.");
+                toast.success("Session marked as NG Cabin and recorded in audit log.");
               }}
             >
-              Tutup Paksa
+              Set NG Cabin
             </Button>
           </DialogFooter>
         </DialogContent>

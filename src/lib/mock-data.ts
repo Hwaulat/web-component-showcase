@@ -88,7 +88,7 @@ const MANPOWER_NAMES: Array<[string, string]> = [
   ["NIK-1007", "Ahmad Fauzi"],
   ["NIK-1008", "Dewi Lestari"],
 ];
-const DEPARTMENTS = ["Perbaikan Cabin", "Perakitan", "Quality Control"];
+const DEPARTMENTS = ["Cabin Repair", "Assembly", "Quality Control"];
 
 export const manpower: Manpower[] = MANPOWER_NAMES.map(([nik, name], i) => ({
   id: `mp-${i + 1}`,
@@ -109,12 +109,12 @@ export const cabins: Cabin[] = Array.from({ length: 24 }, (_, i) => ({
   isActive: i !== 23,
 }));
 
-// Bangkitkan work sessions 30 hari terakhir
+// Generate work sessions for the last 30 days
 function buildSessions(): WorkSession[] {
   const sessions: WorkSession[] = [];
   let seq = 1;
   for (let d = 30; d >= 0; d--) {
-    const perDay = d === 0 ? 4 : 3 + Math.floor(rand() * 5); // hari ini belum selesai semua
+    const perDay = d === 0 ? 4 : 3 + Math.floor(rand() * 5); // today not all finished
     for (let s = 0; s < perDay; s++) {
       const cabin = pick(cabins);
       const worker = pick(manpower.filter((m) => m.isActive));
@@ -133,7 +133,7 @@ function buildSessions(): WorkSession[] {
         status: forceClosed ? "force_closed" : end ? "completed" : "in_progress",
         forceClosedBy: forceClosed ? "usr-admin" : undefined,
         forceCloseReason: forceClosed
-          ? "Sesi menggantung > 8 jam, teknisi lupa scan selesai"
+          ? "Cabin moved to NG line and separated from production line"
           : undefined,
         createdOffline: rand() < 0.08,
       });
@@ -161,7 +161,7 @@ export const appUsers: AppUser[] = [
 export const syncLogs: SyncLog[] = [
   { id: "sl-1", entityType: "cabin", triggeredBy: "scheduled", status: "success", recordsSynced: 24, errorMessage: null, startedAt: SYNC_TIME, finishedAt: new Date(SYNC_TIME.getTime() + 4200) },
   { id: "sl-2", entityType: "manpower", triggeredBy: "scheduled", status: "success", recordsSynced: 8, errorMessage: null, startedAt: SYNC_TIME, finishedAt: new Date(SYNC_TIME.getTime() + 2100) },
-  { id: "sl-3", entityType: "cabin", triggeredBy: "scheduled", status: "failed", recordsSynced: 0, errorMessage: "Gagal terhubung ke sistem sumber (timeout)", startedAt: new Date(SYNC_TIME.getTime() - 3600_000), finishedAt: new Date(SYNC_TIME.getTime() - 3600_000 + 30_000) },
+  { id: "sl-3", entityType: "cabin", triggeredBy: "scheduled", status: "failed", recordsSynced: 0, errorMessage: "Failed to connect to source system (timeout)", startedAt: new Date(SYNC_TIME.getTime() - 3600_000), finishedAt: new Date(SYNC_TIME.getTime() - 3600_000 + 30_000) },
   { id: "sl-4", entityType: "manpower", triggeredBy: "manual", status: "success", recordsSynced: 8, errorMessage: null, startedAt: new Date(SYNC_TIME.getTime() - 7200_000), finishedAt: new Date(SYNC_TIME.getTime() - 7200_000 + 1900) },
 ];
 
@@ -173,13 +173,13 @@ export function fmtDuration(seconds: number | null): string {
   if (seconds == null) return "—";
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  if (h > 0) return `${h}j ${m}m`;
+  if (h > 0) return `${h}h ${m}m`;
   return `${m}m`;
 }
 
 export function fmtDateTime(d: Date | null): string {
   if (!d) return "—";
-  return d.toLocaleString("id-ID", {
+  return d.toLocaleString("en-US", {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -188,7 +188,7 @@ export function fmtDateTime(d: Date | null): string {
 }
 
 export function fmtDate(d: Date): string {
-  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+  return d.toLocaleDateString("en-US", { day: "2-digit", month: "short" });
 }
 
 export const isSameDay = (a: Date, b: Date) =>
@@ -197,7 +197,7 @@ export const isSameDay = (a: Date, b: Date) =>
 export const NOW_REF = NOW;
 
 export const STATUS_LABEL: Record<SessionStatus, string> = {
-  in_progress: "Sedang Dikerjakan",
-  completed: "Selesai",
-  force_closed: "Ditutup Paksa",
+  in_progress: "Done",
+  completed: "Completed",
+  force_closed: "NG Cabin",
 };
